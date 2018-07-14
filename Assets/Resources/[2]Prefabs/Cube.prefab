@@ -2370,7 +2370,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1730384584080396}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.456, y: 1.13, z: -9.099949}
+  m_LocalPosition: {x: 50.5, y: 1, z: 90.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4893492837358858}
@@ -3052,7 +3052,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -3153,7 +3153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6e68513a7463724690ec2e6705717f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: {fileID: 0}
   currentState: 0
   currentAnimators: []
   animatorIndex: 0
@@ -3161,6 +3160,7 @@ MonoBehaviour:
   objectType: 1
   canTakeDamage: 1
   team: 0
+  isInteractable: 0
   characterName: 
   targetObject: {fileID: 0}
   playerControlled: 0
@@ -3219,6 +3219,7 @@ MonoBehaviour:
   character: {fileID: 0}
   inMinigame: 0
   combatMode: 0
+  cameraBasedFacing: 0
   highGroundRaycast:
   - {x: 1, y: 1, z: 0.25}
   - {x: 0, y: 1, z: 0.25}
@@ -3242,6 +3243,7 @@ MonoBehaviour:
     fwd_Axis: Vertical
     turn_Axis: Horizontal
     Jump_Axis: Jump
+  camera: {fileID: 0}
   rBody: {fileID: 54589030480905446}
   forwardInput: 0
   turnInput: 0

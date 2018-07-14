@@ -18,16 +18,22 @@ namespace Barebones.DamageSystem
     }
     public class BareboneWeapon : BareboneObject {
 
+
+        [Header("Damage Types")]
+        // Implemented as List to allow multiple types of damage.
+        [SerializeField] private List<BareboneDamage> bareboneDamages;
+
+
         // Weapon can deal damage if its activated
+        [Header("Checker")]
         public bool environmentWeapon;
         public bool active;
         public WeaponEffect weaponEffect;
 
+        [Header("Referencer")]
         // Obtain Owner
         [SerializeField] private BareboneCharacter Owner;
 
-        // Implemented as List to allow multiple types of damage.
-        [SerializeField] private List<BareboneDamage> bareboneDamages;
 
 
         public void OnEnable()
@@ -53,6 +59,7 @@ namespace Barebones.DamageSystem
             }
             Initialize();
         }
+
         public void Initialize()
         {
             for (int i = 0; i < bareboneDamages.Count; i++)
@@ -60,6 +67,7 @@ namespace Barebones.DamageSystem
                 bareboneDamages[i].Initialize();
             }
         }
+
         // this is used to Get one damageType
         public BareboneDamage GetOneBareboneDamage(Parameters param)
         {

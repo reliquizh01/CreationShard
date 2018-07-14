@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using EventSystem;
@@ -8,6 +9,13 @@ using PlayerControl;
 
 namespace CameraBehaviour
 {
+    [Serializable]
+    public class CameraPosition
+    {
+       [SerializeField]public string posName;
+       [SerializeField] public Vector3 rotation;
+    }
+
     public class CameraControl : MonoBehaviour {
 
         public float cameraMoveSpeed = 120.0f;
@@ -32,11 +40,19 @@ namespace CameraBehaviour
         public float finalInputX;
         public float finalInputZ;
 
+        [Header("CameraPositions")]
+        public CameraPosition[] cameraPositions;
+
         [Header("Switch")]
         public bool EnableCursor = false;
+        public bool inMinigame = false;
 
         private void Start()
         {
+            if(hostPlayer != null)
+            {
+                transform.position = hostPlayer.transform.position;
+            }
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
@@ -65,7 +81,14 @@ namespace CameraBehaviour
 
         private void CursorVisibilitySwitch(Parameters p = null)
         {
-            EnableCursor = !EnableCursor;
+            if(p != null)
+            {
+                EnableCursor = (p.HasParameter("Switch")) ? p.GetWithKeyParameterValue<bool>("Switch", false) : !EnableCursor;
+            }
+            else
+            {
+                EnableCursor = !EnableCursor;
+            }
             if (EnableCursor)
                 Cursor.lockState = CursorLockMode.None;
             else

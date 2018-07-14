@@ -110,8 +110,21 @@ namespace PlayerControl
                         distToStuff = 10.0f;
                     }
                 }
-                // if player is jumping
-                if (jumpInput != 0)
+                if (distToStuff < 0.1f)
+                {
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+        public bool TooHigh
+        {
+            get
+            {
+                RaycastHit hit;
+                // if player is already Jumping Check if he's already spamming jump
+                if (jumpInput > 0)
                 {
                     for (int i = 0; i < highGroundRaycast.Length; i++)
                     {
@@ -128,14 +141,10 @@ namespace PlayerControl
                 {
                     tooHigh = false;
                 }
-                if (distToStuff < 0.1f)
-                {
-                    return true;
-                }
-                else
-                    return false;
+                return tooHigh;
             }
         }
+
         public Quaternion TargetRotation
         {
             get
@@ -397,8 +406,16 @@ namespace PlayerControl
         {
             // Selecting BareboneObjects
             SelectObject();
+            GatherResources();
         }
 
+        private void GatherResources()
+        {
+            if (Input.GetButtonDown("GatherResource"))
+            {
+
+            }
+        }
         private void SelectObject()
         {
             if (Input.GetMouseButtonDown(0))
@@ -412,6 +429,8 @@ namespace PlayerControl
                     {
                         character.TargetObject = hitInfo.transform.gameObject;
                         Parameters param = new Parameters();
+                        param.AddParameter<bool>("Switch", false);
+                        EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_MOUSE_SWITCH, param);
                     }
                 }
                 else

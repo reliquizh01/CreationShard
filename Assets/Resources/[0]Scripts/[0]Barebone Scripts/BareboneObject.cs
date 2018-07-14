@@ -22,6 +22,10 @@ namespace Barebones
     };
     public class BareboneObject : AnimationManager
     {
+        [Header("Global Name")]
+        [SerializeField] private string itemId;
+
+        [Header("Local Reference")]
         [SerializeField]private string generalName;
         [SerializeField] private ObjectType objectType;
         // Toggles
