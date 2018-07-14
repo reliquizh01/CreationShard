@@ -24,6 +24,7 @@ namespace Barebones.Minigame
         public void Start()
         {
             p.AddParameter<MGColliderHelper>("Checker", this);
+            p.AddParameter<bool>("Entering", false);
             SwitchFX(0);
         }
 
@@ -40,10 +41,10 @@ namespace Barebones.Minigame
             if(fx != null)
             {
 
-            if (effectsOn)
-                fx.Play();
-            else
-                fx.Stop();
+                if (effectsOn)
+                    fx.gameObject.SetActive(true);
+                else
+                    fx.gameObject.SetActive(false);
             }
             else
             {
@@ -65,9 +66,11 @@ namespace Barebones.Minigame
                 {
                     BareboneCharacter player = collision.transform.GetComponent<BareboneCharacter>();
                     playersWithinRange.Add(collision.transform.GetComponent<BareboneCharacter>());
-
+                    SwitchFX(1);
                     Parameters p = new Parameters();
                     p.AddParameter<MGColliderHelper>("Checker", this);
+                    p.UpdateParameter<bool>("Entering", true);
+                    Debug.Log("Enter");
                     EventBroadcaster.Instance.PostEvent(EventNames.NOTIFY_PLAYER_INTERACTION, p);
                 }
             }
@@ -86,14 +89,16 @@ namespace Barebones.Minigame
 
                 Parameters p = new Parameters();
                 p.AddParameter<MGColliderHelper>("Checker", this);
-                EventBroadcaster.Instance.PostEvent(EventNames.NOTIFY_PLAYER_INTERACTION, p);
-
+                p.UpdateParameter<bool>("Entering", false);
                 if (playersWithinRange != null)
                 {
                     if (!playersWithinRange.Contains(collidingPlayer))
                     {
                         return;
                     }
+                    SwitchFX(0);
+                    Debug.Log("Exit");
+                    EventBroadcaster.Instance.PostEvent(EventNames.NOTIFY_PLAYER_INTERACTION, p);
                     playersWithinRange.Remove(collidingPlayer);
                 }
             }

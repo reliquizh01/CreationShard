@@ -19,9 +19,7 @@ namespace UserInterface
 
         [Header("Notification System")]
         public MGColliderHelper minigameFromThis;
-        public List<MGColliderHelper> queueMinigames;
         public BareboneCharacter npcInteracting;
-        public List<BareboneCharacter> queueCharacter;
         public void Start()
         {
             EventBroadcaster.Instance.AddObserver(EventNames.NOTIFY_PLAYER_INTERACTION, NotifyPlayer);
@@ -36,15 +34,16 @@ namespace UserInterface
             if (p.HasParameter("Checker")) 
             {
                 MGColliderHelper tmp = p.GetWithKeyParameterValue<MGColliderHelper>("Checker", null);
-                NotifyMinigame(p.GetWithKeyParameterValue<MGColliderHelper>("Checker", null));
+                NotifyMinigame(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
             }
             else if (p.HasParameter("Character"))
             {
-                NotifyNearNPC(p.GetWithKeyParameterValue<BareboneCharacter>("Character", null));
+                BareboneCharacter tmp = p.GetWithKeyParameterValue<BareboneCharacter>("Character", null);
+                NotifyNearNPC(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
             }
         }
 
-        public void NotifyNearNPC(BareboneCharacter thisCharacter = null)
+        public void NotifyNearNPC(BareboneCharacter thisCharacter = null, bool isEntering = false)
         {
             if(thisCharacter == null)
             {
@@ -52,20 +51,28 @@ namespace UserInterface
             }
             npcInteracting = (npcInteracting == thisCharacter) ? null : thisCharacter;
             interactNotif.SetActive(npcInteracting != null);
-
-            minigameNotif.SetActive(npcInteracting != null);
             
         }
 
 
-        public void NotifyMinigame(MGColliderHelper thisChecker = null)
+        public void NotifyMinigame(MGColliderHelper thisChecker = null, bool isEntering = false)
         {
             if(thisChecker == null)
             {
                 return;
             }
-            minigameFromThis = (minigameFromThis == thisChecker) ? null : thisChecker;
-            minigameNotif.SetActive(minigameFromThis != null);
+            if (isEntering)
+            {
+                minigameFromThis = thisChecker;
+            }
+            else
+            {
+                if(minigameFromThis == thisChecker)
+                {
+                    minigameFromThis = null;
+                }
+            }
+             minigameNotif.SetActive(isEntering);
         }
         
     }

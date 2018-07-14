@@ -39,6 +39,7 @@ namespace CameraBehaviour
         {
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
+            EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
             hostPlayer.GetComponent<CharacterControl>().SetCamera(this.gameObject);
 
             Vector3 rot = transform.localRotation.eulerAngles;
@@ -52,18 +53,19 @@ namespace CameraBehaviour
         {
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
+            EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
         }
         public void Update()
         {
             if(Input.GetButtonDown("LeftControl"))
             {
-                EnableCursor = !EnableCursor;
                 CursorVisibilitySwitch();
             }
         }
 
-        private void CursorVisibilitySwitch()
+        private void CursorVisibilitySwitch(Parameters p = null)
         {
+            EnableCursor = !EnableCursor;
             if (EnableCursor)
                 Cursor.lockState = CursorLockMode.None;
             else

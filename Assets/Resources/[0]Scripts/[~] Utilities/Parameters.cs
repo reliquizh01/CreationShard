@@ -29,7 +29,7 @@ namespace Utilities
             }
             return false;
         }
-
+        
         public  bool AddParameter<T>(string key, T value)
         {
             // Avoiding unnecessary memory consumption
@@ -49,7 +49,7 @@ namespace Utilities
             return true;
         }
 
-        public void UpdateParameter<T>(string key, T value)
+        public void UpdateParameter<T>(string key, T newValue)
         {
             if (this.entries == null)
             {
@@ -58,12 +58,12 @@ namespace Utilities
             // Change the value of hte key
             if (this.entries.ContainsKey(key))
             {
-                this.entries[key] = value;
+                this.entries[key] = newValue;
             }
             // if entries does not contain the key
             else
             {
-                this.entries.Add(key, value);
+                this.entries.Add(key, newValue);
             }
         }
         // Get the value inside the entry [Used if you know the key already]

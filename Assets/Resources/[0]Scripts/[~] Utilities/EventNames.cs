@@ -9,6 +9,7 @@ namespace EventSystem
         // Camera Related
         public const string CAMERA_CHANGE_FOCUS = "CAMERA_CHANGE_FOCUS";
         public const string CAMERA_CLEAR_FOCUS = "CAMERA_CLEAR_FOCUS";
+        public const string CAMERA_MOUSE_SWITCH = "CAMERA_MOUSE_SWITCH";
 
         // User Interface
         public const string SET_UI_PLAYER_REFERENCE = "SET_UI_PLAYER_REFERENCE";
