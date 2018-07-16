@@ -413,7 +413,7 @@ namespace PlayerControl
         {
             if (Input.GetButtonDown("GatherResource"))
             {
-
+                EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_VIEWMODE_MINIGAME);
             }
         }
         private void SelectObject()

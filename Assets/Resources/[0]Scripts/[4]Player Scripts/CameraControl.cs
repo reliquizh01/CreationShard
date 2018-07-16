@@ -56,6 +56,7 @@ namespace CameraBehaviour
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
+            EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_VIEWMODE_MINIGAME, SwitchToMinigameViewMode);
             hostPlayer.GetComponent<CharacterControl>().SetCamera(this.gameObject);
 
             Vector3 rot = transform.localRotation.eulerAngles;
@@ -70,6 +71,7 @@ namespace CameraBehaviour
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
+            EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_VIEWMODE_MINIGAME, SwitchToMinigameViewMode);
         }
         public void Update()
         {
@@ -79,6 +81,11 @@ namespace CameraBehaviour
             }
         }
 
+        private void SwitchToMinigameViewMode(Parameters p = null)
+        {
+            Quaternion offset = Quaternion.Euler(0, cameraPositions[0].rotation.y - hostPlayer.transform.rotation.eulerAngles.y, 0);
+            StartCoroutine(ToMinigameView(offset, 3.0f));
+        }
         private void CursorVisibilitySwitch(Parameters p = null)
         {
             if(p != null)
@@ -99,22 +106,28 @@ namespace CameraBehaviour
 
         public void FixedUpdate()
         {
-            if (!EnableCursor)
+            if (!inMinigame)
             {
-                if (objectToFocus)
+                if (!EnableCursor)
                 {
-                    FocusOnTarget();
+                    if (objectToFocus)
+                    {
+                        FocusOnTarget();
+                    }
                 }
             }
         }
         private void LateUpdate()
         {
-            CameraUpdater();
-            if (!EnableCursor)
+            if(!inMinigame)
             {
-                if (!objectToFocus)
+                CameraUpdater();
+                if (!EnableCursor)
                 {
-                    BaseMovement();
+                    if (!objectToFocus)
+                    {
+                        BaseMovement();
+                    }
                 }
             }
         }
@@ -193,6 +206,19 @@ namespace CameraBehaviour
                 return;
             }
             objectToFocus = null;
+        }
+        
+        public IEnumerator ToMinigameView(Quaternion target, float overTime)
+        {
+            float startTime = Time.time;
+            inMinigame = true;
+            while (Time.time < startTime + overTime)
+            {
+                Debug.Log("Rotating!");
+                transform.rotation = Quaternion.Slerp(transform.rotation,target, (Time.time - startTime) / overTime);
+                yield return null;
+            }
+            transform.rotation = target;
         }
     }
 }
