@@ -7,6 +7,7 @@ using EventSystem;
 using Utilities;
 using Barebones.Characters;
 using Barebones.DamageSystem;
+using Barebones.Skill;
 
 namespace Barebones.Characters
 {
@@ -62,14 +63,18 @@ namespace Barebones.Characters
         [SerializeField] private float currentHealth;
         [SerializeField] private float maximumHealth;
         [SerializeField] protected ActionType currentAction;
-        [SerializeField] private LivingState currentLivingState;
+        [SerializeField] protected LivingState currentLivingState;
+        
         // Status
         [SerializeField] private List<Buff> buff;
 
         // Holds all Damage Overtime
         [SerializeField]private List<BareboneDamage> dotDamageDealers;
         
-
+        //Skill System
+        [SerializeField] private List<ActiveSkill> activeSkills;
+        [SerializeField] private List<ActiveSkill> filteredSkills;
+        [SerializeField] private List<PassiveSkill> passiveSkills;
         // Movement
         [SerializeField] protected float movementSpeed;
         protected Quaternion targetRotation;

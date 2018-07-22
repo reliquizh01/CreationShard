@@ -58,66 +58,6 @@ public class PlayerCharacter : BareboneCharacter {
             return this.isGrounded;
         }
     }
-    public void Dodge(float time)
-    {
-        // NORMAL MOVEMENT FORWARD / BACKWARD
-        if (Input.GetKey(movementKeys["Forward"]))
-        {
-            turnInput = 1;
-            if (Input.GetKeyDown(movementKeys["Forward"]))
-            {
-                DoubleTap(time, movementKeys["Forward"]);
-            }
-        }
-        else if (Input.GetKey(movementKeys["Backward"]))
-        {
-            turnInput = -1;
-            if (Input.GetKeyDown(movementKeys["Backward"]))
-            {
-                DoubleTap(time, movementKeys["Backward"]);
-            }
-        }
-        // NORMAL MOVEMENT LEFT/RIGHT
-        if (Input.GetKey(movementKeys["Left"]))
-        {
-            if (Input.GetKeyDown(movementKeys["Left"]))
-            {
-                DoubleTap(time, movementKeys["Left"]);
-            }
-        }
-        else if (Input.GetKey(movementKeys["Right"]))
-        {
-            ForwardInput = 1;
-            if (Input.GetKeyDown(movementKeys["Right"]))
-            {
-                DoubleTap(time, movementKeys["Right"]);
-            }
-        }
-        // DOUBLE TAP RELATED CALCULATIONS
-        if (tapCounter > 0)
-        {
-            tapTimer -= time; // Limits the Time when the 2nd Tap could possible be registered!
-            if (tapTimer <= 0)
-            {
-                tapCounter = 0;
-            }
-            else if (tapCounter >= 2)
-            {
-                tapCounter = 0;
-                tapTimer = 0;
-                Debug.Log("Double Tapped!");
-                // Should be change to 'WaitForAnimation' (declared in bareboneCharacter script) once animations are ready
-                if (currentAction != ActionType.DODGING)
-                {
-                    StartCoroutine(Dodging());
-                }
-            }
-        }
-    }
-    public override IEnumerator Dodging()
-    {
-        return base.Dodging();
-    }
     private void CheckFacing(float deltaTime)
     {
        // targetRotation = Quaternion.AngleAxis(rotationVel * turnInput * Time.deltaTime, Vector3.up);
@@ -158,13 +98,13 @@ public class PlayerCharacter : BareboneCharacter {
         base.Combat();
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            if (LivingState == LivingState.IDLE)
+            if (LivingState != LivingState.DEAD && LivingState != LivingState.COMBAT)
             {
-             //   stateMachine.SetCombatState(new SheatheState(this), LivingState.COMBAT);
+                LivingState = LivingState.COMBAT;
             }
             else
             {
-               // stateMachine.SetCombatState(new SheatheState(this), LivingState.IDLE);
+                LivingState = LivingState.IDLE;
             }
         }
     }
@@ -180,5 +120,9 @@ public class PlayerCharacter : BareboneCharacter {
         combatKeys.Add("Sheathe", KeyCode.E);
     }
 
+    public void CheckSkillInput()
+    {
+
+    }
 
 }

@@ -2370,7 +2370,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1730384584080396}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 50.5, y: 1, z: 90.2}
+  m_LocalPosition: {x: 4.9, y: 1, z: 1.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4893492837358858}
@@ -3154,11 +3154,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
-  currentAnimators: []
+  currentAnimators:
+  - {fileID: 95389404597131766}
   animatorIndex: 0
-  generalName: CUBE
-  objectType: 1
-  canTakeDamage: 1
+  itemId: 
+  generalName: 
+  objectType: 0
+  canTakeDamage: 0
   team: 0
   isInteractable: 0
   characterName: 
@@ -3168,10 +3170,10 @@ MonoBehaviour:
   canGrow: 0
   currentEvolution: 0
   evolutions:
-  - evolutionName: Baby
+  - evolutionName: BabyCube
     evolutionParts:
     - {fileID: 1450173660178550}
-  - evolutionName: Grow Up
+  - evolutionName: GrownUp
     evolutionParts:
     - {fileID: 1833317629648268}
     - {fileID: 1901495739636242}
@@ -3187,7 +3189,34 @@ MonoBehaviour:
   currentLivingState: 0
   buff: 
   dotDamageDealers: []
-  movementSpeed: 0
+  activeSkills:
+  - skillName: Dodge
+    statDependent: []
+    skillType: 0
+    hasCooldown: 0
+    canActivate: 0
+    cooldownTime: 2
+    noComboTrigger: 0
+    isDoubleTap: 1
+    comboKeys:
+    - tapped: 0
+      key: 1
+    - tapped: 0
+      key: 2
+    - tapped: 0
+      key: 3
+    - tapped: 0
+      key: 4
+    previousKey:
+      tapped: 0
+      key: 0
+    initialButtonTapped: 0
+    nextTapTimer: 0.5
+    curTapTimer: 0
+    currentComboKey: 0
+  filteredSkills: []
+  passiveSkills: []
+  movementSpeed: 10
   CamerabasedControls: 0
   ForwardInput: 0
   turnInput: 0
@@ -3202,8 +3231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5831f107930224a4a8aa105750c900d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 114402492164104472}
-  isMainBody: 1
+  parent: {fileID: 0}
+  isMainBody: 0
 --- !u!114 &114459333012268556
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3220,21 +3249,15 @@ MonoBehaviour:
   inMinigame: 0
   combatMode: 0
   cameraBasedFacing: 0
-  highGroundRaycast:
-  - {x: 1, y: 1, z: 0.25}
-  - {x: 0, y: 1, z: 0.25}
-  - {x: -1, y: 1, z: 0.25}
-  - {x: 1, y: 1, z: -0.25}
-  - {x: 0, y: 1, z: -0.25}
-  - {x: -1, y: 1, z: -0.25}
+  highGroundRaycast: []
   moveSettings:
-    forwardVel: 10
+    forwardVel: 25
     rotateVel: 300
     jumpVel: 20
     disToGrounded: 0.5
     ground:
       serializedVersion: 2
-      m_Bits: 1024
+      m_Bits: 0
     touchedTrigger: 0
   physSettings:
     downAccel: 0.75
@@ -3244,7 +3267,7 @@ MonoBehaviour:
     turn_Axis: Horizontal
     Jump_Axis: Jump
   camera: {fileID: 0}
-  rBody: {fileID: 54589030480905446}
+  rBody: {fileID: 0}
   forwardInput: 0
   turnInput: 0
   jumpInput: 0
@@ -3261,8 +3284,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5831f107930224a4a8aa105750c900d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 114402492164104472}
-  isMainBody: 1
+  parent: {fileID: 0}
+  isMainBody: 0
 --- !u!114 &114781804805210694
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3274,8 +3297,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5831f107930224a4a8aa105750c900d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 114402492164104472}
-  isMainBody: 1
+  parent: {fileID: 0}
+  isMainBody: 0
 --- !u!114 &114946222950905656
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3287,8 +3310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5831f107930224a4a8aa105750c900d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 114402492164104472}
-  isMainBody: 1
+  parent: {fileID: 0}
+  isMainBody: 0
 --- !u!136 &136500877389650152
 CapsuleCollider:
   m_ObjectHideFlags: 1
