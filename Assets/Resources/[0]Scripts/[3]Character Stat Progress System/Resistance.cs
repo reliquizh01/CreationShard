@@ -34,7 +34,6 @@ namespace Barebones.Characters
 
         public void Addprogress(float expAddition, string name = null)
         {
-            Debug.Log("Adding [" + name + "] to my list of things I can try to resist");
             BareboneResistance bareboneResistance = attackResistance.Find(x => x.Name == name);
             if (bareboneResistance != null)
             {
@@ -42,12 +41,13 @@ namespace Barebones.Characters
             }
             else
             {
-                if(name == null)
+                if (name == null)
                 {
                     Debug.Log("QQQQQQQQ : Trying to add an invalid Attack name, Please Check Error!!");
                 }
                 else
                 {
+                    Debug.Log("Adding [" + name + "] to my list of things I can try to resist");
                     bareboneResistance = new BareboneResistance();
                     bareboneResistance.Initialize();
                     bareboneResistance.Name = name;

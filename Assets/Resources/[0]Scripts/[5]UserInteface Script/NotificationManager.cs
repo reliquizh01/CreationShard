@@ -4,9 +4,11 @@ using UnityEngine;
 
 using UnityEngine.UI;
 using Utilities;
-using EventSystem;
+using EventFunctionSystem;
 using Barebones.Minigame;
 using Barebones.Characters;
+using Barebones.Items;
+using PlayerControl;
 
 namespace UserInterface
 {
@@ -20,9 +22,63 @@ namespace UserInterface
         [Header("Notification System")]
         public MGColliderHelper minigameFromThis;
         public BareboneCharacter npcInteracting;
+        public ItemBase itemNearby;
+
+        #region Const, Static, and Singleton
+        private static NotificationManager instance = null;
+        public static NotificationManager Instance
+        {
+            get
+            {
+                if(instance == null)
+                {
+                    NotificationManager tmp = FindObjectOfType<NotificationManager>();
+                    instance = tmp;
+                }
+                return instance;
+            }
+        }
+
+        public bool CheckMinigameNotification()
+        {
+            if (instance == null)
+            {
+                Debug.Log(StringUtils.RedString("Instance of Notification Manager is null!"));
+                return false;
+            }
+
+            if (instance.minigameNotif.activeSelf)
+            {
+                instance.minigameNotif.SetActive(false);
+                return true;
+            }
+            Debug.Log("Notifs are not active! Check if notifications receives the activation notice!");
+            return false;
+        }
+
+        public bool CheckItemNpcNotification()
+        {
+
+            if (instance.interactNotif.activeSelf)
+            {
+                instance.interactNotif.SetActive(false);
+                return true;
+            }
+
+            Debug.Log("Notifs are not active! Check if notifications receives the activation notice!");
+            return false;
+        }
+        #endregion
+
         public void Start()
         {
             EventBroadcaster.Instance.AddObserver(EventNames.NOTIFY_PLAYER_INTERACTION, NotifyPlayer);
+        }
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.NOTIFY_PLAYER_INTERACTION, NotifyPlayer);
+
         }
 
         public void NotifyPlayer(Parameters p = null)
@@ -40,6 +96,11 @@ namespace UserInterface
             {
                 BareboneCharacter tmp = p.GetWithKeyParameterValue<BareboneCharacter>("Character", null);
                 NotifyNearNPC(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
+            }
+            else if(p.HasParameter("Item"))
+            {
+                ItemBase tmp = p.GetWithKeyParameterValue<ItemBase>("Item", null);
+                NotifyNearItem(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
             }
         }
 
@@ -75,5 +136,25 @@ namespace UserInterface
              minigameNotif.SetActive(isEntering);
         }
         
+        public void NotifyNearItem(ItemBase thisItem = null, bool isEntering = false)
+        {
+            if(thisItem == null)
+            {
+                Debug.Log("Item Null!!");
+                return;
+            }
+            if(isEntering)
+            {
+                itemNearby = thisItem;
+            }
+            else
+            {
+                if(itemNearby == thisItem)
+                {
+                    itemNearby = null;
+                }
+            }
+            interactNotif.SetActive(isEntering);
+        }
     }
 }

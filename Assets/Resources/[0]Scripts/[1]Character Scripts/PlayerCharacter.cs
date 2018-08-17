@@ -5,10 +5,12 @@ using UnityEngine;
 
 using Utilities;
 using Barebones.Characters;
+using Barebones.Skill;
 
 [Serializable]
 public class PlayerCharacter : BareboneCharacter {
 
+    [Header("PLAYER INFORMATION")]
     [SerializeField] private bool CamerabasedControls;
     private Dictionary<string, KeyCode> movementKeys;
     private Dictionary<string, KeyCode> combatKeys;
@@ -23,7 +25,7 @@ public class PlayerCharacter : BareboneCharacter {
     protected Rigidbody rig;
     private float distToGround;
     private Vector3 movement;
-    
+
     public override void Awake()
     {
         base.Awake();
@@ -39,6 +41,7 @@ public class PlayerCharacter : BareboneCharacter {
         //Check if There's a Save File for its InputKeys
         GenerateGenericInputKeys();
     }
+
     public override void Update()
     {
         ForwardInput = Input.GetAxis("Vertical");
@@ -49,6 +52,7 @@ public class PlayerCharacter : BareboneCharacter {
             Movement(Time.deltaTime);
         }
         Combat();
+        CheckInput();
     }
     private bool IsGrounded
     {
@@ -58,40 +62,70 @@ public class PlayerCharacter : BareboneCharacter {
             return this.isGrounded;
         }
     }
+
+    private void CheckInput()
+    {
+        if (!skillActivated)
+        {
+            foreach (BaseSkill skill in skills)
+            {
+                if (!skill.inCooldown)
+                {
+                    skill.CheckKey(GetKeyClicked());
+                }
+                else skill.ReduceCooldown(Time.deltaTime);
+            }
+        }
+        else
+        {
+            // NOTE : HAVE TO REMOVE THIS ONCE ANIMATION FOR EVERY SKILL IS IMPLEMENTED
+            foreach (BaseSkill skill in skills)
+            {
+                if (skill.skillEnabled)
+                {
+                    skill.ReduceSkillDuration(Time.deltaTime);
+                }
+            }
+        }
+    }
     private void CheckFacing(float deltaTime)
     {
        // targetRotation = Quaternion.AngleAxis(rotationVel * turnInput * Time.deltaTime, Vector3.up);
         //Debug.Log(targetRotation + "RotVel : " + rotationVel + " turnInput : " + turnInput + " deltaTime: " + deltaTime);
         transform.rotation *= targetRotation;
     }
-    private void DoubleTap(float deltaTime, KeyCode input)
+
+    private void ResetAllSkills(BaseSkill exception)
     {
-        if (doubleTapKeyCode != input)
+        foreach(BaseSkill skill in skills)
         {
-            doubleTapKeyCode = input;
-            tapCounter = 0;
+            Debug.Log("Resetting : " + skill.skillName);
+            if(skill != exception)
+            {
+                if(!skill.simultaneousCast)
+                {
+                    skill.ResetSkill();
+                }
+            }
         }
-        //Debug.Log("Tapped");
-        tapCounter += 1;
-        tapTimer = 0.2f;
     }
     /// <summary>
     /// Checks if player is not moving At ALL
     /// </summary>
     /// <returns>Return if player is confirmed in Idle State</returns>
-    public bool CheckIfMoving()
+    public string GetKeyClicked()
     {
-        bool isMoving = false;
-       foreach(KeyCode btns in movementKeys.Values)
-       {
-            if (Input.GetKey(btns))
+        string noValue= "";
+        foreach(string name in movementKeys.Keys)
+        {
+            if(Input.GetKeyDown(movementKeys[name]))
             {
-                isMoving = true;
-                return isMoving;
+                //Debug.Log("Key : " + name + " is clicked!");
+                return name;
             }
-       }
+        }
 
-        return isMoving;
+        return noValue;
     }
     public override void Combat()
     {
@@ -110,19 +144,13 @@ public class PlayerCharacter : BareboneCharacter {
     }
     public void GenerateGenericInputKeys()
     {
-        movementKeys.Add("Forward", KeyCode.W);
-        movementKeys.Add("Backward", KeyCode.S);
-        movementKeys.Add("Left", KeyCode.A);
-        movementKeys.Add("Right", KeyCode.D);
-        movementKeys.Add("Strafe", KeyCode.LeftShift);
-        movementKeys.Add("Jump", KeyCode.Space);
+        movementKeys.Add("forward", KeyCode.W);
+        movementKeys.Add("backward", KeyCode.S);
+        movementKeys.Add("left", KeyCode.A);
+        movementKeys.Add("right", KeyCode.D);
+        movementKeys.Add("strafe", KeyCode.LeftShift);
+        movementKeys.Add("jump", KeyCode.Space);
 
-        combatKeys.Add("Sheathe", KeyCode.E);
+        combatKeys.Add("sheathe", KeyCode.E);
     }
-
-    public void CheckSkillInput()
-    {
-
-    }
-
 }

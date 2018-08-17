@@ -6,12 +6,14 @@ using CharacterStateMachine;
 using Barebones.Characters;
 
 using Utilities;
+using Barebones;
 /// <summary>
 /// Manages all Animation related to an Object
 /// </summary>
 [Serializable]
-public class AnimationManager : MonoBehaviour {
+public class AnimationManager : BareboneObject {
     
+    [Header("ANIMATIONS")]
     [SerializeField] protected CharacterStates currentState;
     private CharacterState[] characterStates = new CharacterState[(int)CharacterStates.NumberofTypes];
 

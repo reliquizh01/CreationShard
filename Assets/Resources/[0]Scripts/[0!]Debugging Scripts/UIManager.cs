@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+using Utilities;
 namespace UserInterface
 {
     public class UIManager : BaseManager {
@@ -10,15 +10,18 @@ namespace UserInterface
         public GameObject debugManager;
         public bool DebugActive = false;
 
-    #if UNITY_EDITOR
+        [Header("UI Managers")]
+        public BaseManager uiHealthStamina;
+        
         public void Update()
         {
+    #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Backspace))
             {
                 DebugActive = !DebugActive;
                 debugManager.SetActive(DebugActive);
             }
-        }
     #endif
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Utilities;
+using Barebones.Skill;
 
 /// <summary>
 /// BarebonesObject -
@@ -20,8 +21,9 @@ namespace Barebones
         Ingredient = 3,
         Item = 4,
     };
-    public class BareboneObject : AnimationManager
+    public class BareboneObject : MonoBehaviour
     {
+        [Header("GENERAL INFORMATION")]
         [Header("Global Name")]
         [SerializeField] private string itemId;
 
@@ -33,7 +35,66 @@ namespace Barebones
         // Allegiance
         [SerializeField] protected int team;
         [SerializeField] protected bool isInteractable;
-        
+
+        [SerializeField] protected List<BaseSkill> skills;
+        [SerializeField] protected bool skillActivated;
+
+        // Alive Stats
+        [SerializeField] protected float currentHealth;
+        [SerializeField] protected float maximumHealth;
+        [SerializeField] protected float currentStamina;
+        [SerializeField] protected float maximumStamina;
+        [SerializeField] protected float weight;
+
+        public virtual void Awake()
+        {
+            InitializeSkill();
+        }
+
+        public float CurrentHealth
+        {
+            get
+            {
+                return this.currentHealth;
+            }
+            set
+            {
+                currentHealth = Mathf.Clamp(value, 0, maximumHealth);
+            }
+        }
+        public float MaximumHealth
+        {
+            get
+            {
+                return this.maximumHealth;
+            }
+            set
+            {
+                maximumHealth = value;
+            }
+        }
+        public float CurrentStamina
+        {
+            get
+            {
+                return this.currentStamina;
+            }
+            set
+            {
+                currentStamina = Mathf.Clamp(value, 0, maximumStamina);
+            }
+        }
+        public float MaximumStamina
+        {
+            get
+            {
+                return this.maximumStamina;
+            }
+            set
+            {
+                maximumStamina = value;
+            }
+        }
         public bool CanTakeDamage
         {
             get
@@ -43,6 +104,17 @@ namespace Barebones
             set
             {
                 this.canTakeDamage = value;
+            }
+        }
+        public bool SkillActivate
+        {
+            get
+            {
+                return this.skillActivated;
+            }
+            set
+            {
+                this.skillActivated = value;
             }
         }
         public string GeneralName
@@ -89,6 +161,55 @@ namespace Barebones
         public virtual void FinishEvolve(Animator selfAnim = null)
         {
 
+        }
+        
+        public virtual void InitializeSkill(bool allSkill = true, int skillIndex = 0)
+        {
+            if(allSkill)
+            {
+                foreach(BaseSkill skill in skills)
+                {
+                    skill.SetOwner(this);
+                }
+            }
+        }
+
+        public virtual void MoveTowards(string direction, bool forceFace = false)
+        {
+            // failsafe
+            if (!GetComponent<Rigidbody>())
+            {
+                Debug.Log(Utilities.StringUtils.YellowString("Forcing Object to Move, but object has no Rigidbody."));
+                return;
+            }
+            Debug.Log(direction);
+            Rigidbody rb;
+            rb = GetComponent<Rigidbody>();
+
+            Vector3 velocity = Vector3.zero;
+            if(direction == "forward")
+            {
+                velocity.z = 10;
+            }
+            else if (direction == "backward")
+            {
+                velocity.z -= 10;
+            }
+            else if (direction == "right")
+            {
+                velocity.x = 10;
+            }
+            else if (direction == "left")
+            {
+                velocity.x -= 10;
+            }
+            rb.velocity = transform.TransformDirection(velocity);
+        }
+
+        public virtual void PlayAnimation(string key)
+        {
+            string animKey = generalName + "_" + key;
+           
         }
     }
 }

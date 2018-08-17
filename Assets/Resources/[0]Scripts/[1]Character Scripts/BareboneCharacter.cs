@@ -3,11 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using EventSystem;
+using EventFunctionSystem;
 using Utilities;
 using Barebones.Characters;
 using Barebones.DamageSystem;
-using Barebones.Skill;
 
 namespace Barebones.Characters
 {
@@ -23,8 +22,9 @@ namespace Barebones.Characters
         POISONED = 2, // Infected by some source of virus.
     }
     [Serializable]
-    public class BareboneCharacter : BareboneObject
+    public class BareboneCharacter : AnimationManager
     {
+        [Header("CHARACTER INFORMATION")]
         [SerializeField] private string characterName;
         // Interaction Related
         [SerializeField] private GameObject targetObject;
@@ -52,17 +52,21 @@ namespace Barebones.Characters
         [SerializeField] private bool playerControlled;
         [SerializeField] protected bool isGrounded;
         [SerializeField] protected bool canGrow;
+        [SerializeField] protected bool hasHands;
+
         //Evolution GameObjects
         [SerializeField] protected int currentEvolution;
         [SerializeField] private CharacterEvolution[] evolutions;
+
         //Character Stats
         [SerializeField] private bool StatsProgression;
         [SerializeField] private List<BareboneStats> characterStats;
         [SerializeField] private Resistance resistance;
-        // Alive Stats
-        [SerializeField] private float currentHealth;
-        [SerializeField] private float maximumHealth;
+        
+        [Header("Action Tab")]
         [SerializeField] protected ActionType currentAction;
+        [SerializeField] private ActionType prevAction;
+        [Header("Living State")]
         [SerializeField] protected LivingState currentLivingState;
         
         // Status
@@ -71,14 +75,21 @@ namespace Barebones.Characters
         // Holds all Damage Overtime
         [SerializeField]private List<BareboneDamage> dotDamageDealers;
         
-        //Skill System
-        [SerializeField] private List<ActiveSkill> activeSkills;
-        [SerializeField] private List<ActiveSkill> filteredSkills;
-        [SerializeField] private List<PassiveSkill> passiveSkills;
         // Movement
         [SerializeField] protected float movementSpeed;
         protected Quaternion targetRotation;
         
+        public bool HandsAvailable
+        {
+            get
+            {
+                return this.hasHands;
+            }
+            set
+            {
+                this.hasHands = value;
+            }
+        }
         public string CharacterName
         {
             get
@@ -104,28 +115,6 @@ namespace Barebones.Characters
                 this.currentLivingState = value;
             }
         }
-        public float CurrentHealth
-        {
-            get
-            {
-                return this.currentHealth;
-            }
-            set
-            {
-                currentHealth = Mathf.Clamp(value, 0, maximumHealth);
-            }
-        }
-        public float MaximumHealth
-        {
-            get
-            {
-                return this.maximumHealth;
-            }
-            set
-            {
-                maximumHealth = value;
-            }
-        }
         public List<BareboneStats> CharacterStats
         {
             get
@@ -138,6 +127,17 @@ namespace Barebones.Characters
            get
             {
                 return currentAction;
+            }
+        }
+        public ActionType PreviousAction
+        {
+            get
+            {
+                return prevAction;
+            }
+            set
+            {
+                prevAction = value;
             }
         }
         public bool PlayerControlled
@@ -153,8 +153,9 @@ namespace Barebones.Characters
         }
 
 
-        public virtual void Awake()
+        public override void Awake()
         {
+            base.Awake();
             // facingDirection needs Improvement, if there's an AI that should be facing on a fixed direction upon contact
             targetRotation = this.transform.rotation;
             //characterController = GetComponent<CharacterController>();
@@ -204,7 +205,7 @@ namespace Barebones.Characters
             {
                 if (this.CanTakeDamage)
                 {
-                    currentAction = ActionType.ATTACKED;
+                    ChangeAction(ActionType.ATTACKED);
                     // Now Check if its Single Damage or Multiple Damage
                     if (param.GetParameterCount > 1)
                     {
@@ -271,6 +272,8 @@ namespace Barebones.Characters
         /// </summary>
         public void DoTChecker(float deltaTime)
         {
+            // DAMAGE OCCURS PER TICK
+            /*
                 for (int i = 0; i < dotDamageDealers.Count; i++)
                 {
                     if(dotDamageDealers[i].DotTimer >= dotDamageDealers[i].TickCount)
@@ -287,32 +290,64 @@ namespace Barebones.Characters
                     {
                         dotDamageDealers.RemoveAt(i);
                     }
+                        EventBroadcaster.Instance.PostEvent(EventNames.UPDATE_PLAYER_HEALTH);
                 }
+                */
+
+            // DAMAGE OCCURS OVERTIME
+            for (int i = 0; i < dotDamageDealers.Count; i++)
+            {
+                if(dotDamageDealers[i].DotTimer < dotDamageDealers[i].TickCount)
+                {
+                    this.CurrentHealth -= dotDamageDealers[i].Overtimedamage;
+                    dotDamageDealers[i].DotTimer += deltaTime;
+                }
+                // if dot is past the tickCount
+                if (dotDamageDealers[i].DotTimer > dotDamageDealers[i].TickCount)
+                {
+                    dotDamageDealers.RemoveAt(i);
+                }
+                EventBroadcaster.Instance.PostEvent(EventNames.UPDATE_PLAYER_HEALTH);
+            }
         }
         /// <summary>
         /// CalculateDamage computes damage with the cooperation of characterStats
         /// </summary>
         public void CalculateDamage(BareboneDamage bareboneDamage, BareboneCharacter Damagedealer = null)
         {
-            float dotExp = 0;
-            float randDmg = UnityEngine.Random.Range(bareboneDamage.MinimumDamage, bareboneDamage.MaximumDamage);
-            float resistanceReduction = 0;
-            if (resistance.GetResistance(bareboneDamage.GetDamageType.ToString()) != null)
+            if (bareboneDamage.DamageTo == DamageTo.health)
             {
-                resistanceReduction = randDmg * 0.02f;
-            }
-            this.CurrentHealth -= randDmg - resistanceReduction;
-            if(bareboneDamage.GetDamageProcess == BareboneDamage.Process.Overtime)
-            {   
-                dotDamageDealers.Add(bareboneDamage);
-                for (int i = 0; i < bareboneDamage.TickCount; i++)
+                float dotExp = 0;
+                float randDmg = UnityEngine.Random.Range(bareboneDamage.MinimumDamage, bareboneDamage.MaximumDamage);
+                float resistanceReduction = 0;
+                if (resistance.GetResistance(bareboneDamage.GetDamageType.ToString()) != null)
                 {
-                    dotExp += bareboneDamage.Overtimedamage;
+                    resistanceReduction = randDmg * 0.02f;
                 }
-            }
+                this.CurrentHealth -= randDmg - resistanceReduction;
+                if (bareboneDamage.GetDamageProcess == BareboneDamage.Process.Overtime)
+                {
+                    dotDamageDealers.Add(bareboneDamage);
+                    for (int i = 0; i < bareboneDamage.TickCount; i++)
+                    {
+                        dotExp += bareboneDamage.Overtimedamage;
+                    }
+                }
                 Debug.Log("Improving Resistance!!");
                 resistance.Addprogress(randDmg, bareboneDamage.GetDamageType.ToString());
                 resistance.Addprogress(dotExp, bareboneDamage.GetDamageType.ToString());
+                // Updates UI Health
+                EventBroadcaster.Instance.PostEvent(EventNames.UPDATE_PLAYER_HEALTH);
+            }
+            else if(bareboneDamage.DamageTo == DamageTo.stamina)
+            {
+                float randDmg = UnityEngine.Random.Range(bareboneDamage.MinimumDamage, bareboneDamage.MaximumDamage);
+                this.CurrentStamina -= randDmg;
+
+                //TODO : Add Stamina Damage Overtime
+
+                EventBroadcaster.Instance.PostEvent(EventNames.UPDATE_PLAYER_STAMINA);
+            }
         }
 
         // MOVEMENTS
@@ -325,7 +360,29 @@ namespace Barebones.Characters
                 return;
             }
         }
-        
+        public void ChangeAction(ActionType newAction)
+        {
+            if(currentAction == newAction)
+            {
+                Debug.Log(StringUtils.YellowString("Action is trying to change to its present state!"));
+                return;
+            }
+
+
+            currentAction = newAction;
+            UpdateStats();
+        }
+
+        public void UpdateStats()
+        {
+            foreach(BareboneStats stat in characterStats)
+            {
+                if(stat.GetProgressType.Contains(currentAction))
+                {
+                    stat.Addprogress(15);
+                }
+            }
+        }
         public virtual void Combat()
         {
             if(currentLivingState == LivingState.DEAD)
@@ -353,26 +410,6 @@ namespace Barebones.Characters
             resistance = new Resistance();
             resistance.Initialize();
         }
-
-        public virtual IEnumerator Dodging()
-        {
-            Debug.Log("Dodging!");
-            currentAction = ActionType.DODGING;
-            CanTakeDamage = false;
-            yield return new WaitForSeconds(0.75f);
-            Debug.Log("Back to Idle!");
-            currentAction = ActionType.IDLE;
-            CanTakeDamage = true;
-        }
-        // ANIMATION RELATED Implementations
-        public IEnumerator WaitForAnimation(Animation animation)
-        {
-            do
-            {
-                yield return null;
-            } while (animation.isPlaying);
-        }
-
         public override void Evolve()
         {
             // DISABLE ALL CURRENT EVOLUTION

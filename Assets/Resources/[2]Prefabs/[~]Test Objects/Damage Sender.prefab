@@ -108,19 +108,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 814efe4ed8f1160438d5d0337f4ffb8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: 
+  currentState: 0
+  currentAnimators: []
+  animatorIndex: 0
+  itemId: 
+  generalName: 
   objectType: 4
   canTakeDamage: 0
-  team: 0
-  environmentWeapon: 1
-  active: 1
-  weaponEffect: 1
-  Owner: {fileID: 0}
+  team: 1
+  isInteractable: 0
+  skills: []
+  skillActivated: 0
+  currentHealth: 1
+  maximumHealth: 1
+  currentStamina: 0
+  maximumStamina: 0
   bareboneDamages:
-  - name: 
+  - name: Red Poison
     damageType: 1
     damageProcess: 1
     tickCount: 5
-    damageOvertime: 0.2
+    damageOvertime: 0.02
     minimumDamage: 15
     maximumDamage: 20
+  environmentWeapon: 1
+  active: 1
+  weaponEffect: 0
+  Owner: {fileID: 0}

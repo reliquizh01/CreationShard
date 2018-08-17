@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 using UnityEngine;
 
-using EventSystem;
+using EventFunctionSystem;
 using Utilities;
 using Barebones;
 using Barebones.Characters;
+using CameraBehaviour;
+using UserInterface;
 
 namespace PlayerControl
 {
@@ -67,12 +70,14 @@ namespace PlayerControl
         public MoveSettings moveSettings = new MoveSettings();
         public PhysSettings physSettings = new PhysSettings();
         public InputSettings inputSettings = new InputSettings();
-        private Vector3 moveRotDir;
+        float rotX = 0;
+        float rotY = 0;
 
         [Header("References")]
         [SerializeField] private GameObject camera;
         Vector3 velocity = Vector3.zero;
         Quaternion targetRotation;
+        Vector3 combatRotation;
         [SerializeField] private Rigidbody rBody;
         [SerializeField] private float forwardInput, turnInput, jumpInput;
         [SerializeField] private bool justJumped, tooHigh;
@@ -83,6 +88,13 @@ namespace PlayerControl
             get
             {
                 return this.character.TargetObject;
+            }
+        }
+        public GameObject SetTarget
+        {
+            set
+            {
+                this.character.TargetObject = value;
             }
         }
         public void OnDrawGizmos()
@@ -223,22 +235,28 @@ namespace PlayerControl
 
         public void FixedUpdate()
         {
-            Movement();
-            Jump();
+            if(!character.SkillActivate)
+            {
+                if(character.LivingState == LivingState.IDLE && character.TargetObject == null) RotateAndMoveWithDirection();
+                Jump();
+                rBody.velocity = transform.TransformDirection(velocity);
+            }
 
-            rBody.velocity = transform.TransformDirection(velocity);
+        }
 
+        public void LateUpdate()
+        {
+            if(character.LivingState == LivingState.COMBAT || character.TargetObject != null)
+            {
+                RotateWithAandD();
+            }
         }
 
         public void Movement()
         {
-            if(character.TargetObject == null)
+            if(character.TargetObject == null && character.LivingState != LivingState.COMBAT)
             {
                     RotateAndMoveWithDirection();
-            }
-            else
-            {
-                RotateWithAandD();
             }
             /*if (Mathf.Abs(forwardInput) > inputSettings.inputDelay)
             {
@@ -288,18 +306,44 @@ namespace PlayerControl
 
         private void RotateWithAandD()
         {
+         //   Debug.Log("RotateWithAandD");
             if (character.TargetObject == null)
             {
-                if (Mathf.Abs(turnInput) > inputSettings.inputDelay)
+                if (turnInput > inputSettings.inputDelay)
                 {
                     targetRotation *= Quaternion.AngleAxis(moveSettings.rotateVel * turnInput * Time.deltaTime, Vector3.up);
                 }
-                transform.rotation = targetRotation;
+                transform.eulerAngles = new Vector3(0, camera.transform.eulerAngles.y, 0);
+                // Turn
+                if (turnInput > inputSettings.inputDelay || turnInput < -inputSettings.inputDelay)
+                {
+                    velocity.x = moveSettings.forwardVel * turnInput;
+                }
+                else
+                {
+                    velocity.x = 0;
+                }
+                // Forward
+                if (forwardInput > inputSettings.inputDelay || forwardInput < -inputSettings.inputDelay)
+                {
+                    velocity.z = moveSettings.forwardVel * forwardInput;
+                }
+                else
+                {
+                    // Debug.Log("IDLE!");
+                    velocity.z = 0;
+                }
             }
             else
             {
-                if (Mathf.Abs(turnInput) > inputSettings.inputDelay)
+                if (turnInput > inputSettings.inputDelay)
                 {
+                  //  Debug.Log("Forward");
+                    velocity.x = moveSettings.forwardVel * turnInput;
+                }
+                else if(turnInput < inputSettings.inputDelay)
+                {
+                   // Debug.Log("Backward");
                     velocity.x = moveSettings.forwardVel * turnInput;
                 }
                 else
@@ -332,7 +376,7 @@ namespace PlayerControl
 
                     float distance = Vector3.Distance(xPlayer, xTarget);
 
-                    Debug.Log("Distance To Target : " + distance);
+                   // Debug.Log("Distance To Target : " + distance);
                     if (distance > 0.1f)
                     {
 
@@ -347,38 +391,93 @@ namespace PlayerControl
 
         private void RotateAndMoveWithDirection()
         {
-            float camY;
-            if (forwardInput > 0)
+            //Debug.Log("RotateAndMoveWithDirection");
+            float camY = new float();
+
+            /*if (forwardInput > inputSettings.inputDelay)
             {
                 camY = camera.transform.eulerAngles.y;
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 0, 0), 10.0f * Time.deltaTime);
                 velocity.z = moveSettings.forwardVel * forwardInput;
             }
-            else if (forwardInput < 0)
+            else if (forwardInput < -inputSettings.inputDelay)
             {
                 camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 180, 0), 10.0f * Time.deltaTime);
+                rotX = -1.0f;
+               transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 180, 0), 10.0f * Time.deltaTime);
                  velocity.z = moveSettings.forwardVel * -forwardInput;
             }
-            if (turnInput > 0)
+            if (turnInput > inputSettings.inputDelay)
             {
                 camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 90, 0), 10.0f * Time.deltaTime);
+               transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 90, 0), 10.0f * Time.deltaTime);
                 velocity.z = moveSettings.forwardVel * turnInput;
             }
-            else if (turnInput < 0)
+            else if (turnInput < -inputSettings.inputDelay)
             {
                 camY = camera.transform.eulerAngles.y;
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 270, 0), 10.0f * Time.deltaTime);
-                    velocity.z = moveSettings.forwardVel * -turnInput;
+                velocity.z = moveSettings.forwardVel * -turnInput;
+            }*/
+            camY = camera.transform.eulerAngles.y;
+            // Forward
+            if (forwardInput > inputSettings.inputDelay)
+            {
+                // Right
+                if (turnInput > inputSettings.inputDelay)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 45, 0), 10.0f * Time.deltaTime);
+                }
+                //Left
+                else if (turnInput < -inputSettings.inputDelay)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 45, 0), 10.0f * Time.deltaTime);
+                }
+                // Forward
+                else
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY, 0), 10.0f * Time.deltaTime);
+                }
+                velocity.z = moveSettings.forwardVel * forwardInput;
+            }
+            //Backward
+            else if (forwardInput < -inputSettings.inputDelay)
+            {
+                camY = camera.transform.eulerAngles.y;
+                // Right
+                if (turnInput > inputSettings.inputDelay)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 145, 0), 10.0f * Time.deltaTime);
+                }
+                //Left
+                else if (turnInput < -inputSettings.inputDelay)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 145, 0), 10.0f * Time.deltaTime);
+                }
+                // Backward
+                else
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 180, 0), 10.0f * Time.deltaTime);
+                }
+                velocity.z = moveSettings.forwardVel * -forwardInput;
+            }
+            else if(turnInput > inputSettings.inputDelay)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 90, 0), 10.0f * Time.deltaTime);
+                velocity.z = moveSettings.forwardVel * turnInput;
+            }
+            else if(turnInput < -inputSettings.inputDelay)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 90, 0), 10.0f * Time.deltaTime);
+                velocity.z = moveSettings.forwardVel * -turnInput;
             }
 
             if(turnInput == 0 && forwardInput == 0)
             {
                 velocity.z = 0;
+                velocity.x = 0;
             }
         }
-
         public void Jump()
         {
             if (jumpInput > 0 && IsGrounded)
@@ -407,40 +506,76 @@ namespace PlayerControl
             // Selecting BareboneObjects
             SelectObject();
             GatherResources();
+            GetItemOnGround();
         }
 
         private void GatherResources()
         {
             if (Input.GetButtonDown("GatherResource"))
             {
-                EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_VIEWMODE_MINIGAME);
+                if (NotificationManager.Instance.minigameFromThis != null)
+                {
+                    bool checkNotif = NotificationManager.Instance.CheckMinigameNotification();
+                    inMinigame = true;
+                    character.TargetObject = NotificationManager.Instance.minigameFromThis.gameObject;
+                    EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_VIEWMODE_MINIGAME);
+                }
             }
         }
         private void SelectObject()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && camera.GetComponent<CameraControl>().EnableCursor)
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+
                 RaycastHit hitInfo;
+                Parameters param = new Parameters();
                 var layerMask = ~(1 << 11 & 10);
                 bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition),out hitInfo, 1000.0f, layerMask);
                 if (hit)
                 {
+                    // if Click hits Own Character
+                    if(hitInfo.transform == this.transform)
+                    {
+                        return;
+                    }
+                    // if Click hits Something Else
                     if (hitInfo.transform.GetComponent<BareboneObject>())
                     {
                         character.TargetObject = hitInfo.transform.gameObject;
-                        Parameters param = new Parameters();
+                        param = new Parameters();
                         param.AddParameter<bool>("Switch", false);
                         EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_MOUSE_SWITCH, param);
+                        return;
                     }
                 }
+                // if there's no Hit at all
                 else
                 {
                     character.TargetObject = null;
                     EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_CLEAR_FOCUS);
                 }
+                param.AddParameter<bool>("Switch", false);
+                EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_MOUSE_SWITCH, param);
+                character.TargetObject = null;
+                EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_CLEAR_FOCUS);
             }
         }
         
+        private void GetItemOnGround()
+        {
+            if(Input.GetButtonDown("ItemNpcInteract"))
+            {
+                if (NotificationManager.Instance.itemNearby != null)
+                {
+                    bool checkNotif = NotificationManager.Instance.CheckItemNpcNotification();
+                    NotificationManager.Instance.itemNearby.PickUpItem(character);
+                }
+            }
+        }
         public void SetCamera(GameObject cameraBase)
         {
             camera = cameraBase;

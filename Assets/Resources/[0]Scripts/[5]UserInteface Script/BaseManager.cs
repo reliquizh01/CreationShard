@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Utilities;
-using EventSystem;
+using EventFunctionSystem;
 using Barebones;
 using Barebones.Characters;
 
@@ -19,12 +19,12 @@ using Barebones.Characters;
             EventBroadcaster.Instance.AddObserver(EventNames.SET_UI_PLAYER_REFERENCE, SetPlayerReference);
         }
 
-        public void OnDestroy()
+        public virtual void OnDestroy()
         {
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.SET_UI_PLAYER_REFERENCE, SetPlayerReference);
         }
 
-        public void SetPlayerReference(Parameters param = null)
+        public virtual void SetPlayerReference(Parameters param = null)
         {
             if(param == null)
             {

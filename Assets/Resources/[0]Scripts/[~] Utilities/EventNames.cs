@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EventSystem
+namespace EventFunctionSystem
 {
     public class EventNames
     {
@@ -14,5 +14,8 @@ namespace EventSystem
         // User Interface
         public const string SET_UI_PLAYER_REFERENCE = "SET_UI_PLAYER_REFERENCE";
         public const string NOTIFY_PLAYER_INTERACTION = "NOTIFY_PLAYER_INTERACTION";
+        public const string CHECK_NOTIFICATION = "CHECK_NOTIFICATION";
+        public const string UPDATE_PLAYER_HEALTH = "UPDATE_PLAYER_HEALTH";
+        public const string UPDATE_PLAYER_STAMINA = "UPDATE_PLAYER_STAMINA";
     }
 }
