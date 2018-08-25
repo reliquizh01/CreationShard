@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -112,6 +113,13 @@ namespace Utilities
 
                 return entries.Count;
             }
+        }
+
+        public string[] GetAllKeys()
+        {
+            string[] keys = entries.Keys.ToArray();
+
+            return keys;
         }
     }
 }

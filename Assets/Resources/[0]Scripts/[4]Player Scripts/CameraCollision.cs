@@ -25,10 +25,10 @@ namespace CameraBehaviour
         {
             Vector3 desiredCamPos = transform.parent.TransformPoint(dollyDir * maxDistance);
             RaycastHit hit;
-            var layerMask = ~(1 << 11); // ignore Checker Layer so it wont click collisions that are just checkers
+            var layerMask = ~(  (1 << 11)| (1 << 13)  ); // ignore Checker Layer so it wont click collisions that are just checkers
             if(Physics.Linecast(transform.parent.position, desiredCamPos, out hit,layerMask ))
             {
-                if(hit.transform.gameObject.layer != LayerMask.NameToLayer("Resources"))
+                if(hit.transform.gameObject.layer != LayerMask.NameToLayer("Resources") || hit.transform.gameObject.layer != LayerMask.NameToLayer("Items"))
                 {
                     distance = Mathf.Clamp((hit.distance * 0.9f), minDistance, maxDistance);
                 }

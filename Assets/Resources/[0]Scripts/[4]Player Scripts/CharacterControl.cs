@@ -8,6 +8,7 @@ using EventFunctionSystem;
 using Utilities;
 using Barebones;
 using Barebones.Characters;
+using CharacterStateMachine;
 using CameraBehaviour;
 using UserInterface;
 
@@ -237,7 +238,10 @@ namespace PlayerControl
         {
             if(!character.SkillActivate)
             {
-                if(character.LivingState == LivingState.IDLE && character.TargetObject == null) RotateAndMoveWithDirection();
+                if (character.LivingState == LivingState.IDLE && character.TargetObject == null)
+                {
+                    RotateAndMoveWithDirection();
+                }
                 Jump();
                 rBody.velocity = transform.TransformDirection(velocity);
             }
@@ -251,42 +255,6 @@ namespace PlayerControl
                 RotateWithAandD();
             }
         }
-
-        public void Movement()
-        {
-            if(character.TargetObject == null && character.LivingState != LivingState.COMBAT)
-            {
-                    RotateAndMoveWithDirection();
-            }
-            /*if (Mathf.Abs(forwardInput) > inputSettings.inputDelay)
-            {
-                //Debug.Log("Touching Ground : " + IsGrounded);
-                //move
-            }
-            else
-            {
-                Turn();
-            }*/
-            //FORWARD ANIMATION PARAMETERS
-            Parameters param = new Parameters();
-            param.AddParameter<float>("ForwardInput", forwardInput);
-            if (forwardInput > 0)
-            {
-                param.AddParameter<bool>("Forward", true);
-            }
-            else if (forwardInput < 0)
-            {
-                param.AddParameter<bool>("Backward", true);
-            }
-            else
-            {
-                param.AddParameter<bool>("Backward", false);
-                param.AddParameter<bool>("Forward", false);
-            }
-            // SET CURRENT ANIMATOR CONDITION HERE
-
-        }
-
 /*
         public void Turn()
         {
@@ -391,46 +359,23 @@ namespace PlayerControl
 
         private void RotateAndMoveWithDirection()
         {
-            //Debug.Log("RotateAndMoveWithDirection");
             float camY = new float();
-
-            /*if (forwardInput > inputSettings.inputDelay)
-            {
-                camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 0, 0), 10.0f * Time.deltaTime);
-                velocity.z = moveSettings.forwardVel * forwardInput;
-            }
-            else if (forwardInput < -inputSettings.inputDelay)
-            {
-                camY = camera.transform.eulerAngles.y;
-                rotX = -1.0f;
-               transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 180, 0), 10.0f * Time.deltaTime);
-                 velocity.z = moveSettings.forwardVel * -forwardInput;
-            }
-            if (turnInput > inputSettings.inputDelay)
-            {
-                camY = camera.transform.eulerAngles.y;
-               transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 90, 0), 10.0f * Time.deltaTime);
-                velocity.z = moveSettings.forwardVel * turnInput;
-            }
-            else if (turnInput < -inputSettings.inputDelay)
-            {
-                camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 270, 0), 10.0f * Time.deltaTime);
-                velocity.z = moveSettings.forwardVel * -turnInput;
-            }*/
+            Parameters param = new Parameters();
             camY = camera.transform.eulerAngles.y;
             // Forward
             if (forwardInput > inputSettings.inputDelay)
             {
+                param.AddParameter<bool>("Zaxis", true);
                 // Right
                 if (turnInput > inputSettings.inputDelay)
                 {
+                    param.AddParameter<bool>("Yaxis", true);
                     transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 45, 0), 10.0f * Time.deltaTime);
                 }
                 //Left
                 else if (turnInput < -inputSettings.inputDelay)
                 {
+                    param.AddParameter<bool>("Yaxis", true);
                     transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 45, 0), 10.0f * Time.deltaTime);
                 }
                 // Forward
@@ -443,15 +388,18 @@ namespace PlayerControl
             //Backward
             else if (forwardInput < -inputSettings.inputDelay)
             {
+                param.AddParameter<bool>("Zaxis", true);
                 camY = camera.transform.eulerAngles.y;
                 // Right
                 if (turnInput > inputSettings.inputDelay)
                 {
+                    param.AddParameter<bool>("Yaxis", true);
                     transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 145, 0), 10.0f * Time.deltaTime);
                 }
                 //Left
                 else if (turnInput < -inputSettings.inputDelay)
                 {
+                    param.AddParameter<bool>("Yaxis", true);
                     transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 145, 0), 10.0f * Time.deltaTime);
                 }
                 // Backward
@@ -463,34 +411,57 @@ namespace PlayerControl
             }
             else if(turnInput > inputSettings.inputDelay)
             {
+                param.AddParameter<bool>("Yaxis", true);
+                param.AddParameter<bool>("Zaxis", false);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 90, 0), 10.0f * Time.deltaTime);
                 velocity.z = moveSettings.forwardVel * turnInput;
             }
             else if(turnInput < -inputSettings.inputDelay)
             {
+                param.AddParameter<bool>("Yaxis", true);
+                param.AddParameter<bool>("Zaxis", false);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 90, 0), 10.0f * Time.deltaTime);
                 velocity.z = moveSettings.forwardVel * -turnInput;
             }
+            param.AddParameter<float>("ForwardInput", forwardInput);
 
-            if(turnInput == 0 && forwardInput == 0)
+            // IDLE
+            if (turnInput == 0 && forwardInput == 0)
             {
+               
+                param.AddParameter<bool>("Zaxis", false);
+                param.AddParameter<bool>("Yaxis", false);
                 velocity.z = 0;
                 velocity.x = 0;
+                if (character)
+                {
+                        character.UpdateCurrentState(CharacterStates._IDLE, param);
+                }
             }
+            else
+            {
+                character.UpdateCurrentState(CharacterStates._MOVING, param);
+            }
+
         }
         public void Jump()
         {
+            Parameters param = new Parameters();
             if (jumpInput > 0 && IsGrounded)
             {
+                param.AddParameter<bool>("Jump", true);
                 justJumped = true;
                 //jump
                 velocity.y = moveSettings.jumpVel;
+                character.UpdateCurrentState(CharacterStates._JUMPING, param);
             }
             else if (jumpInput == 0 && IsGrounded)
             {
+                param.AddParameter<bool>("Jump", false);
                 //0 out our velocity.y
                 velocity.y = 0;
                 justJumped = false;
+                character.UpdateCurrentState(CharacterStates._IDLE, param);
             }
             else
             {
@@ -573,6 +544,8 @@ namespace PlayerControl
                 {
                     bool checkNotif = NotificationManager.Instance.CheckItemNpcNotification();
                     NotificationManager.Instance.itemNearby.PickUpItem(character);
+                    character.PIckupItem(NotificationManager.Instance.itemNearby);
+                    character.CurrentState = CharacterStateMachine.CharacterStates._INTERACTING;
                 }
             }
         }

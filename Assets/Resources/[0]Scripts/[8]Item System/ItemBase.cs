@@ -22,6 +22,8 @@ namespace Barebones.Items
         Gauntlet = 0,
         Helmet = 1,
         Tool = 2,
+        CoinPurse = 3,
+        belt = 4,
     }
 
     public class ItemBase : BareboneObject {
@@ -35,12 +37,15 @@ namespace Barebones.Items
         public bool floorHit = false;
         public bool effectsOn = false;
         public bool requiresHand = false;
-
+        public bool pickedUp = false;
         [Header("Particle Effects")]
         [SerializeField] public ParticleSystem fx;
 
         public BareboneCharacter playerInteracting;
         [SerializeField] private List<BareboneCharacter> playersWithinRange = new List<BareboneCharacter>();
+
+        [Header("Item Information")]
+        public EquipType equipType;
 
         public void Start()
         {
@@ -63,6 +68,10 @@ namespace Barebones.Items
 
         public void ItemMovement()
         {
+            if(pickedUp)
+            {
+                return;
+            }
             if(!CheckFloatingPosition())
             {
                 transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y - 0.125f, transform.position.z), 5.5f * Time.deltaTime);
@@ -74,18 +83,20 @@ namespace Barebones.Items
 
         public void PickUpItem(BareboneCharacter picker)
         {
+            
             if(!playersWithinRange.Contains(picker))
             {
                 return;
             }
             playerInteracting = picker;
-            
+            pickedUp = true;
+            /*
             if(requiresHand && !playerInteracting.HandsAvailable)
             {
                 Debug.Log("Player has no hands, This item requires hands to be picked up!");
                 playerInteracting = null;
                 return;
-            }
+            } */
         }
 
         public void OnDrawGizmos()

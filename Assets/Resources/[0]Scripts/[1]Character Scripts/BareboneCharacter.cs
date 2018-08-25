@@ -7,6 +7,7 @@ using EventFunctionSystem;
 using Utilities;
 using Barebones.Characters;
 using Barebones.DamageSystem;
+using Barebones.Items;
 
 namespace Barebones.Characters
 {
@@ -53,7 +54,7 @@ namespace Barebones.Characters
         [SerializeField] protected bool isGrounded;
         [SerializeField] protected bool canGrow;
         [SerializeField] protected bool hasHands;
-
+        [SerializeField] protected List<BaseSlot> itemsWithSlots;
         //Evolution GameObjects
         [SerializeField] protected int currentEvolution;
         [SerializeField] private CharacterEvolution[] evolutions;
@@ -187,10 +188,13 @@ namespace Barebones.Characters
 
             //Set CurrentAnimators
             SetCurrentAnimators(evolutions[currentEvolution].EvolutionParts);
+            //Obtain current ItemSlots
+            InitializeGenericSlots(evolutions[currentEvolution].EvolutionParts);
         }
 
-        public virtual void Update()
+        public override void Update()
         {
+            base.Update();
             if(dotDamageDealers.Count > 0)
             {
                 DoTChecker(Time.deltaTime);
@@ -462,6 +466,58 @@ namespace Barebones.Characters
                 return;
             }
             characterStats.Add(stats);
+        }
+         
+
+        public void InitializeGenericSlots(GameObject[] bodyPartsWithSlots)
+        {
+            foreach(GameObject bodyPart in bodyPartsWithSlots)
+            {
+                AnimationHelper partHelper = bodyPart.GetComponent<AnimationHelper>();
+                if (partHelper)
+                {
+                    if(partHelper.GetNaturalSlots != null)
+                    {
+                        foreach(BaseSlot natSlot in partHelper.GetNaturalSlots)
+                        {
+                            itemsWithSlots.Add(natSlot);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void PIckupItem(ItemBase thisItem)
+        {
+            UpdateAnimator("PickUp");
+            if (!thisItem)
+            {
+                Debug.Log("Item trying to pick up has no ItemBase script!");
+            }
+
+            QuickPlaceToSlot(thisItem);
+
+        }
+
+        public void QuickPlaceToSlot (ItemBase thisItem)
+        {
+            
+            if (itemsWithSlots == null)
+            {
+                return;
+            }
+
+            foreach (BaseSlot slot in itemsWithSlots)
+            {
+                if (slot.currentItem != null)
+                {
+                    continue;
+                }
+                if (slot.holdItemType.Contains(thisItem.equipType))
+                {
+                    slot.PlaceItemToSlot(thisItem.gameObject);
+                }
+            }
         }
     }
 }

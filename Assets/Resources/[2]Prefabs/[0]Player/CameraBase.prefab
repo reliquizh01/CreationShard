@@ -50,14 +50,14 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1117535658352220}
-  m_LocalRotation: {x: 0, y: 0.86602545, z: 0, w: 0.49999994}
+  m_LocalRotation: {x: -0, y: 0.96645486, z: -0, w: 0.2568365}
   m_LocalPosition: {x: 5, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4614645304361432}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -0, y: 120, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 150.235, z: 0}
 --- !u!4 &4614645304361432
 Transform:
   m_ObjectHideFlags: 1
@@ -135,6 +135,7 @@ MonoBehaviour:
   - posName: Minigame
     rotation: {x: 0, y: 120, z: 0}
   EnableCursor: 0
+  inMinigame: 0
 --- !u!114 &114889596910479792
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -151,3 +152,8 @@ MonoBehaviour:
   smooth: 10
   dollyDirAdjusted: {x: 0, y: 0, z: 0}
   distance: 4
+  layers:
+  - serializedVersion: 2
+    m_Bits: 8192
+  - serializedVersion: 2
+    m_Bits: 4096

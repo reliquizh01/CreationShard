@@ -73,12 +73,13 @@ namespace UserInterface
         public void Start()
         {
             EventBroadcaster.Instance.AddObserver(EventNames.NOTIFY_PLAYER_INTERACTION, NotifyPlayer);
+            EventBroadcaster.Instance.AddObserver(EventNames.PLAYER_PICKUP_ITEM, PlayerPickUpItem);
         }
         public override void OnDestroy()
         {
             base.OnDestroy();
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.NOTIFY_PLAYER_INTERACTION, NotifyPlayer);
-
+            EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.PLAYER_PICKUP_ITEM, PlayerPickUpItem);
         }
 
         public void NotifyPlayer(Parameters p = null)
@@ -155,6 +156,11 @@ namespace UserInterface
                 }
             }
             interactNotif.SetActive(isEntering);
+        }
+
+        public void PlayerPickUpItem(Parameters p = null)
+        {
+            playerStats.QuickPlaceToSlot(itemNearby);
         }
     }
 }

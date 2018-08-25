@@ -17,5 +17,7 @@ namespace EventFunctionSystem
         public const string CHECK_NOTIFICATION = "CHECK_NOTIFICATION";
         public const string UPDATE_PLAYER_HEALTH = "UPDATE_PLAYER_HEALTH";
         public const string UPDATE_PLAYER_STAMINA = "UPDATE_PLAYER_STAMINA";
+        // User Interaction
+        public const string PLAYER_PICKUP_ITEM = "PLAYER_PICKUP_ITEM";
     }
 }

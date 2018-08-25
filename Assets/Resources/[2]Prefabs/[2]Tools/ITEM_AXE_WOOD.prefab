@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23954823718664620}
   - component: {fileID: 114293619074432408}
   - component: {fileID: 65588562097284262}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: ITEM_AXE_WOOD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 4441763248083646}
   - component: {fileID: 198139310897625338}
   - component: {fileID: 199652100682204388}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: fx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,9 +159,11 @@ MonoBehaviour:
   floorHit: 0
   effectsOn: 0
   requiresHand: 1
+  pickedUp: 0
   fx: {fileID: 198139310897625338}
   playerInteracting: {fileID: 0}
   playersWithinRange: []
+  equipType: 2
 --- !u!198 &198139310897625338
 ParticleSystem:
   m_ObjectHideFlags: 1
