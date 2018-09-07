@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 using UnityEngine;
 
-using EventSystem;
+using EventFunctionSystem;
 using Utilities;
 using Barebones;
 using Barebones.Characters;
+using CharacterStateMachine;
+using CameraBehaviour;
+using UserInterface;
 
 namespace PlayerControl
 {
@@ -67,22 +71,37 @@ namespace PlayerControl
         public MoveSettings moveSettings = new MoveSettings();
         public PhysSettings physSettings = new PhysSettings();
         public InputSettings inputSettings = new InputSettings();
-        private Vector3 moveRotDir;
+        float rotX = 0;
+        float rotY = 0;
 
         [Header("References")]
         [SerializeField] private GameObject camera;
         Vector3 velocity = Vector3.zero;
         Quaternion targetRotation;
+        Vector3 combatRotation;
         [SerializeField] private Rigidbody rBody;
         [SerializeField] private float forwardInput, turnInput, jumpInput;
         [SerializeField] private bool justJumped, tooHigh;
 
-        
+        public BareboneCharacter GetCharacter
+        {
+            get
+            {
+                return this.character;
+            }
+        }
         public GameObject GetTarget
         {
             get
             {
                 return this.character.TargetObject;
+            }
+        }
+        public GameObject SetTarget
+        {
+            set
+            {
+                this.character.TargetObject = value;
             }
         }
         public void OnDrawGizmos()
@@ -223,52 +242,25 @@ namespace PlayerControl
 
         public void FixedUpdate()
         {
-            Movement();
-            Jump();
-
-            rBody.velocity = transform.TransformDirection(velocity);
+            if(!character.SkillActivate)
+            {
+                if (character.LivingState == LivingState.IDLE)
+                {
+                    RotateAndMoveWithDirection();
+                }
+                Jump();
+                rBody.velocity = transform.TransformDirection(velocity);
+            }
 
         }
 
-        public void Movement()
+        public void LateUpdate()
         {
-            if(character.TargetObject == null)
-            {
-                    RotateAndMoveWithDirection();
-            }
-            else
+            if(character.LivingState == LivingState.COMBAT)
             {
                 RotateWithAandD();
             }
-            /*if (Mathf.Abs(forwardInput) > inputSettings.inputDelay)
-            {
-                //Debug.Log("Touching Ground : " + IsGrounded);
-                //move
-            }
-            else
-            {
-                Turn();
-            }*/
-            //FORWARD ANIMATION PARAMETERS
-            Parameters param = new Parameters();
-            param.AddParameter<float>("ForwardInput", forwardInput);
-            if (forwardInput > 0)
-            {
-                param.AddParameter<bool>("Forward", true);
-            }
-            else if (forwardInput < 0)
-            {
-                param.AddParameter<bool>("Backward", true);
-            }
-            else
-            {
-                param.AddParameter<bool>("Backward", false);
-                param.AddParameter<bool>("Forward", false);
-            }
-            // SET CURRENT ANIMATOR CONDITION HERE
-
         }
-
 /*
         public void Turn()
         {
@@ -288,39 +280,74 @@ namespace PlayerControl
 
         private void RotateWithAandD()
         {
-            if (character.TargetObject == null)
+            Parameters param = new Parameters();
+            //   Debug.Log("RotateWithAandD");
+            if (character.LivingState == LivingState.IDLE)
             {
-                if (Mathf.Abs(turnInput) > inputSettings.inputDelay)
+                if (turnInput > inputSettings.inputDelay)
                 {
                     targetRotation *= Quaternion.AngleAxis(moveSettings.rotateVel * turnInput * Time.deltaTime, Vector3.up);
                 }
-                transform.rotation = targetRotation;
-            }
-            else
-            {
-                if (Mathf.Abs(turnInput) > inputSettings.inputDelay)
+                transform.eulerAngles = new Vector3(0, camera.transform.eulerAngles.y, 0);
+                // Turn
+                if (turnInput > inputSettings.inputDelay || turnInput < -inputSettings.inputDelay)
                 {
+                    velocity.x = moveSettings.forwardVel * turnInput;
+                    param.AddParameter<bool>("Yaxis", true);
+                }
+                else
+                {
+                    velocity.x = 0;
+                    param.AddParameter<bool>("Yaxis", false);
+                }
+                // Forward
+                if (forwardInput > inputSettings.inputDelay || forwardInput < -inputSettings.inputDelay)
+                {
+                    velocity.z = moveSettings.forwardVel * forwardInput;
+                    param.AddParameter<bool>("Zaxis", true);
+                }
+                else
+                {
+                    // Debug.Log("IDLE!");
+                    velocity.z = 0;
+                    param.AddParameter<bool>("Zaxis", false);
+                }
+           }
+           else if(character.LivingState == LivingState.COMBAT)
+            {
+                if (turnInput > inputSettings.inputDelay)
+                {
+                    //  Debug.Log("Forward");
+                    param.AddParameter<bool>("Yaxis", true);
+                    velocity.x = moveSettings.forwardVel * turnInput;
+                }
+                else if(turnInput < inputSettings.inputDelay)
+                {
+                    Debug.Log("Not Moving Sideward");
+                    param.AddParameter<bool>("Yaxis", false);
                     velocity.x = moveSettings.forwardVel * turnInput;
                 }
                 else
                 {
-                    if (character.LivingState == LivingState.IDLE && IsGrounded)
-                    {
-                        // Debug.Log("IDLE!");
-                        velocity.x = 0;
-                    }
+                    param.AddParameter<bool>("Yaxis", false);
+                    velocity.x = 0;
                 }
                 if (Mathf.Abs(forwardInput) > inputSettings.inputDelay)
                 {
+                    param.AddParameter<bool>("Zaxis", true);
                     velocity.z = moveSettings.forwardVel * forwardInput;
                 }
                 else
                 {
-                    if (character.LivingState == LivingState.IDLE && IsGrounded)
-                    {
-                        // Debug.Log("IDLE!");
-                        velocity.z = 0;
-                    }
+                    param.AddParameter<bool>("Zaxis", false);
+                    velocity.z = 0;
+                }
+                if (character.LivingState == LivingState.IDLE && IsGrounded)
+                {
+                    // Debug.Log("IDLE!");
+                    param.AddParameter<bool>("Zaxis", false);
+                    param.AddParameter<bool>("Yaxis", false);
+                    character.UpdateCurrentState(CharacterStates._IDLE, param);
                 }
                 if (character.TargetObject != null)
                 {
@@ -332,7 +359,7 @@ namespace PlayerControl
 
                     float distance = Vector3.Distance(xPlayer, xTarget);
 
-                    Debug.Log("Distance To Target : " + distance);
+                   // Debug.Log("Distance To Target : " + distance);
                     if (distance > 0.1f)
                     {
 
@@ -343,55 +370,131 @@ namespace PlayerControl
                     }
                 }
             }
+           
+            param.AddParameter<float>("ForwardInput", forwardInput);
+
+            if (turnInput == 0 && forwardInput == 0)
+            {
+                param.AddParameter<bool>("Zaxis", false);
+                param.AddParameter<bool>("Yaxis", false);
+                character.UpdateCurrentState(CharacterStates._IDLE, param);
+            }
+            else
+            {
+                character.UpdateCurrentState(CharacterStates._MOVING, param);
+            }
         }
 
         private void RotateAndMoveWithDirection()
         {
-            float camY;
-            if (forwardInput > 0)
+            float camY = new float();
+            Parameters param = new Parameters();
+            camY = camera.transform.eulerAngles.y;
+            // Forward
+            if (forwardInput > inputSettings.inputDelay)
             {
-                camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 0, 0), 10.0f * Time.deltaTime);
+                param.AddParameter<bool>("Zaxis", true);
+                // Right
+                if (turnInput > inputSettings.inputDelay)
+                {
+                    param.AddParameter<bool>("Yaxis", true);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 45, 0), 10.0f * Time.deltaTime);
+                }
+                //Left
+                else if (turnInput < -inputSettings.inputDelay)
+                {
+                    param.AddParameter<bool>("Yaxis", true);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 45, 0), 10.0f * Time.deltaTime);
+                }
+                // Forward
+                else
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY, 0), 10.0f * Time.deltaTime);
+                }
                 velocity.z = moveSettings.forwardVel * forwardInput;
             }
-            else if (forwardInput < 0)
+            //Backward
+            else if (forwardInput < -inputSettings.inputDelay)
             {
+                param.AddParameter<bool>("Zaxis", true);
                 camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 180, 0), 10.0f * Time.deltaTime);
-                 velocity.z = moveSettings.forwardVel * -forwardInput;
+                // Right
+                if (turnInput > inputSettings.inputDelay)
+                {
+                    param.AddParameter<bool>("Yaxis", true);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 145, 0), 10.0f * Time.deltaTime);
+                }
+                //Left
+                else if (turnInput < -inputSettings.inputDelay)
+                {
+                    param.AddParameter<bool>("Yaxis", true);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 145, 0), 10.0f * Time.deltaTime);
+                }
+                // Backward
+                else
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 180, 0), 10.0f * Time.deltaTime);
+                }
+                velocity.z = moveSettings.forwardVel * -forwardInput;
             }
-            if (turnInput > 0)
+            else if(turnInput > inputSettings.inputDelay)
             {
-                camY = camera.transform.eulerAngles.y;
+                param.AddParameter<bool>("Yaxis", true);
+                param.AddParameter<bool>("Zaxis", false);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 90, 0), 10.0f * Time.deltaTime);
                 velocity.z = moveSettings.forwardVel * turnInput;
             }
-            else if (turnInput < 0)
+            else if(turnInput < -inputSettings.inputDelay)
             {
-                camY = camera.transform.eulerAngles.y;
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY + 270, 0), 10.0f * Time.deltaTime);
-                    velocity.z = moveSettings.forwardVel * -turnInput;
+                param.AddParameter<bool>("Yaxis", true);
+                param.AddParameter<bool>("Zaxis", false);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, camY - 90, 0), 10.0f * Time.deltaTime);
+                velocity.z = moveSettings.forwardVel * -turnInput;
             }
+            param.AddParameter<float>("ForwardInput", forwardInput);
 
-            if(turnInput == 0 && forwardInput == 0)
+            // IDLE
+            if (turnInput == 0 && forwardInput == 0)
             {
+               
+                param.AddParameter<bool>("Zaxis", false);
+                param.AddParameter<bool>("Yaxis", false);
                 velocity.z = 0;
+                velocity.x = 0;
+                if (character)
+                {
+                        character.UpdateCurrentState(CharacterStates._IDLE, param);
+                }
             }
-        }
+            else
+            {
+                character.UpdateCurrentState(CharacterStates._MOVING, param);
+            }
 
+        }
+        private void ResetMovement()
+        {
+            velocity.z = 0;
+            velocity.x = 0;
+        }
         public void Jump()
         {
+            Parameters param = new Parameters();
             if (jumpInput > 0 && IsGrounded)
             {
+                param.AddParameter<bool>("Jump", true);
                 justJumped = true;
                 //jump
                 velocity.y = moveSettings.jumpVel;
+                character.UpdateCurrentState(CharacterStates._JUMPING, param);
             }
             else if (jumpInput == 0 && IsGrounded)
             {
+                param.AddParameter<bool>("Jump", false);
                 //0 out our velocity.y
                 velocity.y = 0;
                 justJumped = false;
+                character.UpdateCurrentState(CharacterStates._IDLE, param);
             }
             else
             {
@@ -406,41 +509,88 @@ namespace PlayerControl
         {
             // Selecting BareboneObjects
             SelectObject();
+            Combat();
             GatherResources();
+            GetItemOnGround();
         }
 
+        private void Combat()
+        {
+            if (Input.GetButtonDown("SwitchCombat"))
+            {
+                ResetMovement();
+                character.Combat();
+            }
+        }
         private void GatherResources()
         {
             if (Input.GetButtonDown("GatherResource"))
             {
-
+                if (NotificationManager.Instance.minigameFromThis != null)
+                {
+                    bool checkNotif = NotificationManager.Instance.CheckMinigameNotification();
+                    inMinigame = true;
+                    character.TargetObject = NotificationManager.Instance.minigameFromThis.gameObject;
+                    EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_VIEWMODE_MINIGAME);
+                }
             }
         }
         private void SelectObject()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && camera.GetComponent<CameraControl>().EnableCursor)
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+
                 RaycastHit hitInfo;
+                Parameters param = new Parameters();
                 var layerMask = ~(1 << 11 & 10);
                 bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition),out hitInfo, 1000.0f, layerMask);
                 if (hit)
                 {
+                    // if Click hits Own Character
+                    if(hitInfo.transform == this.transform)
+                    {
+                        return;
+                    }
+                    // if Click hits Something Else
                     if (hitInfo.transform.GetComponent<BareboneObject>())
                     {
                         character.TargetObject = hitInfo.transform.gameObject;
-                        Parameters param = new Parameters();
+                        param = new Parameters();
                         param.AddParameter<bool>("Switch", false);
                         EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_MOUSE_SWITCH, param);
+                        return;
                     }
                 }
+                // if there's no Hit at all
                 else
                 {
                     character.TargetObject = null;
                     EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_CLEAR_FOCUS);
                 }
+                param.AddParameter<bool>("Switch", false);
+                EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_MOUSE_SWITCH, param);
+                character.TargetObject = null;
+                EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_CLEAR_FOCUS);
             }
         }
         
+        private void GetItemOnGround()
+        {
+            if(Input.GetButtonDown("ItemNpcInteract"))
+            {
+                if (NotificationManager.Instance.itemNearby != null)
+                {
+                    bool checkNotif = NotificationManager.Instance.CheckItemNpcNotification();
+                    NotificationManager.Instance.itemNearby.PickUpItem(character);
+                    character.PickupItem(NotificationManager.Instance.itemNearby);
+                    character.CurrentState = CharacterStateMachine.CharacterStates._INTERACTING;
+                }
+            }
+        }
         public void SetCamera(GameObject cameraBase)
         {
             camera = cameraBase;

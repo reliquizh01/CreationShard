@@ -4,7 +4,7 @@ using UnityEngine;
 
 using Utilities;
 
-namespace EventSystem
+namespace EventFunctionSystem
 {
     public class EventBroadcaster : MonoBehaviour
     {

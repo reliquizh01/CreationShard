@@ -5,10 +5,12 @@ using UnityEngine;
 
 using Utilities;
 using Barebones.Characters;
+using Barebones.Skill;
 
 [Serializable]
 public class PlayerCharacter : BareboneCharacter {
 
+    [Header("PLAYER INFORMATION")]
     [SerializeField] private bool CamerabasedControls;
     private Dictionary<string, KeyCode> movementKeys;
     private Dictionary<string, KeyCode> combatKeys;
@@ -23,7 +25,7 @@ public class PlayerCharacter : BareboneCharacter {
     protected Rigidbody rig;
     private float distToGround;
     private Vector3 movement;
-    
+
     public override void Awake()
     {
         base.Awake();
@@ -39,6 +41,7 @@ public class PlayerCharacter : BareboneCharacter {
         //Check if There's a Save File for its InputKeys
         GenerateGenericInputKeys();
     }
+
     public override void Update()
     {
         ForwardInput = Input.GetAxis("Vertical");
@@ -48,7 +51,7 @@ public class PlayerCharacter : BareboneCharacter {
         {
             Movement(Time.deltaTime);
         }
-        Combat();
+        CheckInput();
     }
     private bool IsGrounded
     {
@@ -58,65 +61,31 @@ public class PlayerCharacter : BareboneCharacter {
             return this.isGrounded;
         }
     }
-    public void Dodge(float time)
+
+    private void CheckInput()
     {
-        // NORMAL MOVEMENT FORWARD / BACKWARD
-        if (Input.GetKey(movementKeys["Forward"]))
+        if (!skillActivated)
         {
-            turnInput = 1;
-            if (Input.GetKeyDown(movementKeys["Forward"]))
+            foreach (BaseSkill skill in skills)
             {
-                DoubleTap(time, movementKeys["Forward"]);
-            }
-        }
-        else if (Input.GetKey(movementKeys["Backward"]))
-        {
-            turnInput = -1;
-            if (Input.GetKeyDown(movementKeys["Backward"]))
-            {
-                DoubleTap(time, movementKeys["Backward"]);
-            }
-        }
-        // NORMAL MOVEMENT LEFT/RIGHT
-        if (Input.GetKey(movementKeys["Left"]))
-        {
-            if (Input.GetKeyDown(movementKeys["Left"]))
-            {
-                DoubleTap(time, movementKeys["Left"]);
-            }
-        }
-        else if (Input.GetKey(movementKeys["Right"]))
-        {
-            ForwardInput = 1;
-            if (Input.GetKeyDown(movementKeys["Right"]))
-            {
-                DoubleTap(time, movementKeys["Right"]);
-            }
-        }
-        // DOUBLE TAP RELATED CALCULATIONS
-        if (tapCounter > 0)
-        {
-            tapTimer -= time; // Limits the Time when the 2nd Tap could possible be registered!
-            if (tapTimer <= 0)
-            {
-                tapCounter = 0;
-            }
-            else if (tapCounter >= 2)
-            {
-                tapCounter = 0;
-                tapTimer = 0;
-                Debug.Log("Double Tapped!");
-                // Should be change to 'WaitForAnimation' (declared in bareboneCharacter script) once animations are ready
-                if (currentAction != ActionType.DODGING)
+                if (!skill.inCooldown)
                 {
-                    StartCoroutine(Dodging());
+                    skill.CheckKey(GetKeyClicked());
+                }
+                else skill.ReduceCooldown(Time.deltaTime);
+            }
+        }
+        else
+        {
+            // NOTE : HAVE TO REMOVE THIS ONCE ANIMATION FOR EVERY SKILL IS IMPLEMENTED
+            foreach (BaseSkill skill in skills)
+            {
+                if (skill.skillEnabled)
+                {
+                    skill.ReduceSkillDuration(Time.deltaTime);
                 }
             }
         }
-    }
-    public override IEnumerator Dodging()
-    {
-        return base.Dodging();
     }
     private void CheckFacing(float deltaTime)
     {
@@ -124,61 +93,66 @@ public class PlayerCharacter : BareboneCharacter {
         //Debug.Log(targetRotation + "RotVel : " + rotationVel + " turnInput : " + turnInput + " deltaTime: " + deltaTime);
         transform.rotation *= targetRotation;
     }
-    private void DoubleTap(float deltaTime, KeyCode input)
+
+    private void ResetAllSkills(BaseSkill exception)
     {
-        if (doubleTapKeyCode != input)
+        foreach(BaseSkill skill in skills)
         {
-            doubleTapKeyCode = input;
-            tapCounter = 0;
+            Debug.Log("Resetting : " + skill.skillName);
+            if(skill != exception)
+            {
+                if(!skill.simultaneousCast)
+                {
+                    skill.ResetSkill();
+                }
+            }
         }
-        //Debug.Log("Tapped");
-        tapCounter += 1;
-        tapTimer = 0.2f;
     }
     /// <summary>
     /// Checks if player is not moving At ALL
     /// </summary>
     /// <returns>Return if player is confirmed in Idle State</returns>
-    public bool CheckIfMoving()
+    public string GetKeyClicked()
     {
-        bool isMoving = false;
-       foreach(KeyCode btns in movementKeys.Values)
-       {
-            if (Input.GetKey(btns))
+        string noValue= "";
+        foreach(string name in movementKeys.Keys)
+        {
+            if(Input.GetKeyDown(movementKeys[name]))
             {
-                isMoving = true;
-                return isMoving;
+                //Debug.Log("Key : " + name + " is clicked!");
+                return name;
             }
-       }
+        }
 
-        return isMoving;
+        return noValue;
     }
     public override void Combat()
     {
         base.Combat();
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (LivingState != LivingState.DEAD && LivingState != LivingState.COMBAT)
         {
-            if (LivingState == LivingState.IDLE)
-            {
-             //   stateMachine.SetCombatState(new SheatheState(this), LivingState.COMBAT);
-            }
-            else
-            {
-               // stateMachine.SetCombatState(new SheatheState(this), LivingState.IDLE);
-            }
+            LivingState = LivingState.COMBAT;
+            Parameters p = new Parameters();
+            p.AddParameter<bool>("Combat", true);
+            UpdateAnimator("Combat", p);
+        }
+        else
+        {
+            LivingState = LivingState.IDLE;
+            Parameters p = new Parameters();
+            p.AddParameter<bool>("Combat", false);
+            UpdateAnimator("Combat", p);
         }
     }
     public void GenerateGenericInputKeys()
     {
-        movementKeys.Add("Forward", KeyCode.W);
-        movementKeys.Add("Backward", KeyCode.S);
-        movementKeys.Add("Left", KeyCode.A);
-        movementKeys.Add("Right", KeyCode.D);
-        movementKeys.Add("Strafe", KeyCode.LeftShift);
-        movementKeys.Add("Jump", KeyCode.Space);
+        movementKeys.Add("forward", KeyCode.W);
+        movementKeys.Add("backward", KeyCode.S);
+        movementKeys.Add("left", KeyCode.A);
+        movementKeys.Add("right", KeyCode.D);
+        movementKeys.Add("strafe", KeyCode.LeftShift);
+        movementKeys.Add("jump", KeyCode.Space);
 
-        combatKeys.Add("Sheathe", KeyCode.E);
+        combatKeys.Add("sheathe", KeyCode.E);
     }
-
-
 }

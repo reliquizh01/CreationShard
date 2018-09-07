@@ -6,20 +6,51 @@ using CharacterStateMachine;
 using Barebones.Characters;
 
 using Utilities;
+using Barebones;
 /// <summary>
 /// Manages all Animation related to an Object
 /// </summary>
 [Serializable]
-public class AnimationManager : MonoBehaviour {
+public class AnimationManager : BareboneObject {
     
+    [Header("ANIMATIONS")]
     [SerializeField] protected CharacterStates currentState;
     private CharacterState[] characterStates = new CharacterState[(int)CharacterStates.NumberofTypes];
+    [SerializeField] private bool multipleIdleState;
+    private float idleTimer;
+    private float idleIndex = 0;
 
     [Header("Evolution Animations")]
     [SerializeField] protected List<Animator> currentAnimators;
     [SerializeField] protected int animatorIndex;
     
+    public CharacterStates CurrentState
+    {
+        get
+        {
+            return this.currentState;
+        }
+        set
+        {
+            this.currentState = value;
+        }
+    }
+    
     public virtual  void Initialize()
+    {
+        if(multipleIdleState)
+        {
+            Parameters p = new Parameters();
+            p.AddParameter<bool>("MultiIdle", true);
+            UpdateAnimator("MultiIdle", p);
+        }
+    }
+    public virtual void Update()
+    {
+
+    }
+
+    public virtual void DropAllItems()
     {
 
     }
@@ -28,7 +59,7 @@ public class AnimationManager : MonoBehaviour {
     {
         if (p == null)
         {
-            return;
+            Debug.Log(StringUtils.YellowString("Animators are Being Updated without sufficient Parameters! Are you sure about this?"));
         }
         List<AnimatorControllerParameter[]> animatorParam;
         animatorParam = SetAnimationParam(currentAnimators);
@@ -42,8 +73,7 @@ public class AnimationManager : MonoBehaviour {
                 {
                     if (animatorParam[i][x].type == AnimatorControllerParameterType.Bool)
                     {
-
-                        currentAnimators[i].SetBool(parameterName, p.GetWithKeyParameterValue<bool>(parameterName, false));
+                         currentAnimators[i].SetBool(parameterName, p.GetWithKeyParameterValue<bool>(parameterName, false));
                     }
                     else if (animatorParam[i][x].type == AnimatorControllerParameterType.Float)
                     {
@@ -53,11 +83,14 @@ public class AnimationManager : MonoBehaviour {
                     {
                         currentAnimators[i].SetInteger(parameterName, p.GetWithKeyParameterValue<int>(parameterName, 0));
                     }
+                    else if(animatorParam[i][x].type == AnimatorControllerParameterType.Trigger)
+                    {
+                        currentAnimators[i].SetTrigger(parameterName);
+                    }
                 }
             }
         }
     }
-
     //SET NEW LIST OF ANIMATORS
     private List<AnimatorControllerParameter[]> SetAnimationParam(List<Animator> animators)
     {
@@ -87,5 +120,17 @@ public class AnimationManager : MonoBehaviour {
             currentAnimators.Add(objectAnimators[i].GetComponent<Animator>());
         }
 
+    }
+
+    public virtual void UpdateCurrentState(CharacterStates newState,  Parameters p = null)
+    {
+        currentState = newState;
+
+        string[] keyNames = p.GetAllKeys();
+
+        for (int i = 0; i < keyNames.Length; i++)
+        {
+            UpdateAnimator(keyNames[i], p);
+        }
     }
 }

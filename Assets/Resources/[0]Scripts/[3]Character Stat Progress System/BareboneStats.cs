@@ -88,16 +88,22 @@ namespace Barebones.Characters
             }
         }
         //Increases progress
-        public virtual void Addprogress(float expAddition, string name = null)
+        public virtual void Addprogress(float expAddition)
         {
+            Debug.Log("Stat : " + name + " is increasing by : " + expAddition);
             // Check if Progress surpassed the nextProgressCount
-            if(currentProgressCount+expAddition > nextProgressCount)
+            if (currentProgressCount+expAddition > nextProgressCount)
             {
                 currentProgressCount = currentProgressCount + expAddition;
                 currentProgressCount -= nextProgressCount;
 
                 IncreaseLevel();
             }
+            else
+            {
+                currentProgressCount += expAddition;
+            }
+
         }
 
         // Level up the stats

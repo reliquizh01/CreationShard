@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Utilities;
 
-namespace EventSystem
+namespace EventFunctionSystem
 {
     public class ObserverList
     {

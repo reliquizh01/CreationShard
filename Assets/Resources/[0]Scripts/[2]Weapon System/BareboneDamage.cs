@@ -16,6 +16,11 @@ namespace Barebones.DamageSystem
         Normal = 0,
         Poison = 1,
     }
+    public enum DamageTo
+    {
+        health = 0,
+        stamina = 1,
+    }
     [Serializable]
     public class BareboneDamage {
        // Determines how the damage would be dealt.
@@ -33,6 +38,8 @@ namespace Barebones.DamageSystem
         [SerializeField] private float minimumDamage;
         [SerializeField] private float maximumDamage;
 
+        [Header("Checker")]
+        [SerializeField] private DamageTo damageTo;
 
         public void Initialize()
         {
@@ -50,7 +57,13 @@ namespace Barebones.DamageSystem
                 this.dotTimer = value;
             }
         }
-
+        public DamageTo DamageTo
+        {
+            get
+            {
+                return this.damageTo;
+            }
+        }
         public int TickCount
         {
             get

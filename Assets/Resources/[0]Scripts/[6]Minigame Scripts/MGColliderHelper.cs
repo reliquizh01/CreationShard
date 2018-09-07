@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Barebones.Characters;
 
-using EventSystem;
+using EventFunctionSystem;
 using Utilities;
 
 namespace Barebones.Minigame
@@ -69,8 +69,9 @@ namespace Barebones.Minigame
                     SwitchFX(1);
                     Parameters p = new Parameters();
                     p.AddParameter<MGColliderHelper>("Checker", this);
+                    p.AddParameter<GameObject>("MGobject", transform.parent.gameObject);
                     p.UpdateParameter<bool>("Entering", true);
-                    Debug.Log("Enter");
+                   // Debug.Log("Enter");
                     EventBroadcaster.Instance.PostEvent(EventNames.NOTIFY_PLAYER_INTERACTION, p);
                 }
             }
@@ -97,7 +98,7 @@ namespace Barebones.Minigame
                         return;
                     }
                     SwitchFX(0);
-                    Debug.Log("Exit");
+                    //Debug.Log("Exit");
                     EventBroadcaster.Instance.PostEvent(EventNames.NOTIFY_PLAYER_INTERACTION, p);
                     playersWithinRange.Remove(collidingPlayer);
                 }

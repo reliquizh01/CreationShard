@@ -106,21 +106,24 @@ namespace Barebones.DamageSystem
         // Collision to Check who's getting hit.
         public void OnTriggerEnter(Collider other)
         {
+            //Debug.Log("Touching : " + other.name);
             BareboneObject receiver = other.transform.GetComponent<BareboneObject>();
             // if Weapon is not active
             if (!this.active)
             {
+                Debug.Log(StringUtils.YellowString("Damager is Inactive!"));
                 return;
             }
             //Check if the hit item is an Object
             if(!receiver)
             {
+                Debug.Log(StringUtils.YellowString("Receiver has no BareboneObject!"));
                 return;
             }
             if(receiver.Team != team)
             {
                 // if Collision isLiving
-                if (receiver.ObjectType == ObjectType.Living)
+                if (receiver.ObjectType == ObjectType.Living || receiver.ObjectType == ObjectType.Destructible)
                 {
                     Parameters parameters = new Parameters();
                     parameters.Initialize();

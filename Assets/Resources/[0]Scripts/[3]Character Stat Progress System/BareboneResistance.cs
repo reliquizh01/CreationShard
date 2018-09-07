@@ -49,18 +49,20 @@ namespace Barebones.Characters
             if (currentLevel > currentLevel + 1) return;
 
             currentLevel++;
+           
         }
 
-        public virtual void Addprogress(float expAddition, string name = null)
+        public virtual void Addprogress(float expAddition, string newName = null)
         {
             expAddition = expAddition / currentLevel;
-            Debug.Log("QQQQQQ : PROGRESS INCREASE : " + expAddition);
+          //  Debug.Log("QQQQQQ : PROGRESS INCREASE : " + expAddition + ":" + name);
+            Debug.Log("Current Progress : " + currentProgressCount + "/" + nextProgressCount);
             // Check if Progress surpassed the nextProgressCount
             if (currentProgressCount + expAddition > nextProgressCount)
             {
                 currentProgressCount = currentProgressCount + expAddition;
                 currentProgressCount -= nextProgressCount;
-
+                Debug.Log("Resistance : " + name + " Level up! [CURRENT LEVEL : " + (currentLevel + 1) + "]");
                 IncreaseLevel();
             }
             else
@@ -80,7 +82,7 @@ namespace Barebones.Characters
             }
             if(nextProgressCount <= 0)
             {
-                Debug.Log("NPC @ 100");
+              //  Debug.Log("NPC @ 100");
                 nextProgressCount = 100;
             }
             // Progress Count

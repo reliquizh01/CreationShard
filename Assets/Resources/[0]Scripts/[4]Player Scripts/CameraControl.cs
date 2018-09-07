@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EventSystem;
+using EventFunctionSystem;
 using Utilities;
 
 using PlayerControl;
@@ -27,6 +27,7 @@ namespace CameraBehaviour
         public GameObject hostPlayer;
         public Transform objectToFollow;
         public Transform objectToFocus;
+        public CharacterControl playerControl;
 
         [Header("Camera Rotation")]
         public float inputSensitivity = 150.0f;
@@ -52,10 +53,12 @@ namespace CameraBehaviour
             if(hostPlayer != null)
             {
                 transform.position = hostPlayer.transform.position;
+                playerControl = hostPlayer.GetComponent<CharacterControl>();
             }
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
+            EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_VIEWMODE_MINIGAME, SwitchToMinigameViewMode);
             hostPlayer.GetComponent<CharacterControl>().SetCamera(this.gameObject);
 
             Vector3 rot = transform.localRotation.eulerAngles;
@@ -70,6 +73,7 @@ namespace CameraBehaviour
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
             EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_MOUSE_SWITCH, CursorVisibilitySwitch);
+            EventBroadcaster.Instance.RemoveActionAtObserver(EventNames.CAMERA_VIEWMODE_MINIGAME, SwitchToMinigameViewMode);
         }
         public void Update()
         {
@@ -79,6 +83,11 @@ namespace CameraBehaviour
             }
         }
 
+        private void SwitchToMinigameViewMode(Parameters p = null)
+        {
+            Quaternion offset = Quaternion.Euler(0, cameraPositions[0].rotation.y - hostPlayer.transform.rotation.eulerAngles.y, 0);
+            StartCoroutine(ToMinigameView(offset, 3.0f));
+        }
         private void CursorVisibilitySwitch(Parameters p = null)
         {
             if(p != null)
@@ -99,22 +108,28 @@ namespace CameraBehaviour
 
         public void FixedUpdate()
         {
-            if (!EnableCursor)
+            if (!inMinigame)
             {
-                if (objectToFocus)
+                if (!EnableCursor)
                 {
-                    FocusOnTarget();
+                    if (objectToFocus != null)
+                    {
+                        FocusOnTarget();
+                    }
                 }
             }
         }
         private void LateUpdate()
         {
-            CameraUpdater();
-            if (!EnableCursor)
+            if(!inMinigame)
             {
-                if (!objectToFocus)
+                CameraUpdater();
+                if (!EnableCursor)
                 {
-                    BaseMovement();
+                    if (playerControl.GetCharacter.LivingState == Barebones.Characters.LivingState.IDLE)
+                    {
+                        BaseMovement();
+                    }
                 }
             }
         }
@@ -193,6 +208,19 @@ namespace CameraBehaviour
                 return;
             }
             objectToFocus = null;
+        }
+        
+        public IEnumerator ToMinigameView(Quaternion target, float overTime)
+        {
+            float startTime = Time.time;
+            inMinigame = true;
+            while (Time.time < startTime + overTime)
+            {
+                Debug.Log("Rotating!");
+                transform.rotation = Quaternion.Slerp(transform.rotation,target, (Time.time - startTime) / overTime);
+                yield return null;
+            }
+            transform.rotation = target;
         }
     }
 }
