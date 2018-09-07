@@ -414,8 +414,17 @@ namespace Barebones.Characters
             resistance = new Resistance();
             resistance.Initialize();
         }
+
+        public override void DropAllItems()
+        {
+            foreach(BaseSlot itemSlot in itemsWithSlots)
+            {
+                itemSlot.DropCurrentItem();
+            }
+        }
         public override void Evolve()
         {
+
             // DISABLE ALL CURRENT EVOLUTION
             for (int i = 0; i < evolutions[currentEvolution].EvolutionParts.Length; i++)
             {
@@ -468,7 +477,31 @@ namespace Barebones.Characters
             characterStats.Add(stats);
         }
          
+        public bool CheckAllSlotWithItems()
+        {
+            if(itemsWithSlots != null)
+            {
+                if (itemsWithSlots.Contains(itemsWithSlots.Find(x => x.IsSlotOccupied == true)))
+                {
+                    return true;
+                }
+                else return false;
+            }
 
+            return false;
+        }
+
+        public void PickupItem(ItemBase thisItem)
+        {
+            UpdateAnimator("PickUp");
+            if (!thisItem)
+            {
+                Debug.Log("Item trying to pick up has no ItemBase script!");
+            }
+
+            QuickPlaceToSlot(thisItem);
+
+        }
         public void InitializeGenericSlots(GameObject[] bodyPartsWithSlots)
         {
             foreach(GameObject bodyPart in bodyPartsWithSlots)
@@ -487,18 +520,6 @@ namespace Barebones.Characters
             }
         }
 
-        public void PIckupItem(ItemBase thisItem)
-        {
-            UpdateAnimator("PickUp");
-            if (!thisItem)
-            {
-                Debug.Log("Item trying to pick up has no ItemBase script!");
-            }
-
-            QuickPlaceToSlot(thisItem);
-
-        }
-
         public void QuickPlaceToSlot (ItemBase thisItem)
         {
             
@@ -515,7 +536,7 @@ namespace Barebones.Characters
                 }
                 if (slot.holdItemType.Contains(thisItem.equipType))
                 {
-                    slot.PlaceItemToSlot(thisItem.gameObject);
+                    slot.PlaceItemToSlot(thisItem);
                 }
             }
         }

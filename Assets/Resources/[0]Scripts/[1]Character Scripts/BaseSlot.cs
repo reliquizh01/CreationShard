@@ -6,9 +6,20 @@ using Barebones.Items;
 public class BaseSlot : MonoBehaviour {
     
     public List<EquipType> holdItemType;
-    public GameObject currentItem;
+    public EquipType currentItemType;
+    public ItemBase currentItem;
+    
 
-    public bool PlaceItemToSlot(GameObject thisItem)
+    public bool IsSlotOccupied
+    {
+        get
+        {
+            if (currentItem != null)
+                return false;
+            else return false;
+        }
+    }
+    public bool PlaceItemToSlot(ItemBase thisItem)
     {
         if(currentItem != null)
         {
@@ -16,6 +27,7 @@ public class BaseSlot : MonoBehaviour {
         }
         
         currentItem = thisItem;
+        currentItemType = thisItem.equipType;
         SetCurrentItemParent();
         return true;
     }
@@ -27,6 +39,11 @@ public class BaseSlot : MonoBehaviour {
         currentItem.transform.localPosition = Vector3.zero;
     }
 
+    public void DropCurrentItem()
+    {
+        currentItem.transform.parent = null;
+        currentItem.DropItem();
+    }
     public void NewSetOfHoldItem(EquipType thisType, bool toAdd = true)
     {
         if(toAdd)

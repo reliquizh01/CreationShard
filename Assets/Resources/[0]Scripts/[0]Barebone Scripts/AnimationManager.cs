@@ -50,6 +50,11 @@ public class AnimationManager : BareboneObject {
 
     }
 
+    public virtual void DropAllItems()
+    {
+
+    }
+
     public virtual void UpdateAnimator(string parameterName, Parameters p = null)
     {
         if (p == null)
@@ -68,7 +73,7 @@ public class AnimationManager : BareboneObject {
                 {
                     if (animatorParam[i][x].type == AnimatorControllerParameterType.Bool)
                     {
-                        currentAnimators[i].SetBool(parameterName, p.GetWithKeyParameterValue<bool>(parameterName, false));
+                         currentAnimators[i].SetBool(parameterName, p.GetWithKeyParameterValue<bool>(parameterName, false));
                     }
                     else if (animatorParam[i][x].type == AnimatorControllerParameterType.Float)
                     {

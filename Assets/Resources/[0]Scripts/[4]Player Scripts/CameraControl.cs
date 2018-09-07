@@ -27,6 +27,7 @@ namespace CameraBehaviour
         public GameObject hostPlayer;
         public Transform objectToFollow;
         public Transform objectToFocus;
+        public CharacterControl playerControl;
 
         [Header("Camera Rotation")]
         public float inputSensitivity = 150.0f;
@@ -52,6 +53,7 @@ namespace CameraBehaviour
             if(hostPlayer != null)
             {
                 transform.position = hostPlayer.transform.position;
+                playerControl = hostPlayer.GetComponent<CharacterControl>();
             }
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CHANGE_FOCUS, ChangeFocus);
             EventBroadcaster.Instance.AddObserver(EventNames.CAMERA_CLEAR_FOCUS, ClearFocus);
@@ -110,7 +112,7 @@ namespace CameraBehaviour
             {
                 if (!EnableCursor)
                 {
-                    if (objectToFocus)
+                    if (objectToFocus != null)
                     {
                         FocusOnTarget();
                     }
@@ -124,7 +126,7 @@ namespace CameraBehaviour
                 CameraUpdater();
                 if (!EnableCursor)
                 {
-                    if (!objectToFocus)
+                    if (playerControl.GetCharacter.LivingState == Barebones.Characters.LivingState.IDLE)
                     {
                         BaseMovement();
                     }

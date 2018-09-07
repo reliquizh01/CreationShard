@@ -83,7 +83,13 @@ namespace PlayerControl
         [SerializeField] private float forwardInput, turnInput, jumpInput;
         [SerializeField] private bool justJumped, tooHigh;
 
-        
+        public BareboneCharacter GetCharacter
+        {
+            get
+            {
+                return this.character;
+            }
+        }
         public GameObject GetTarget
         {
             get
@@ -238,7 +244,7 @@ namespace PlayerControl
         {
             if(!character.SkillActivate)
             {
-                if (character.LivingState == LivingState.IDLE && character.TargetObject == null)
+                if (character.LivingState == LivingState.IDLE)
                 {
                     RotateAndMoveWithDirection();
                 }
@@ -250,7 +256,7 @@ namespace PlayerControl
 
         public void LateUpdate()
         {
-            if(character.LivingState == LivingState.COMBAT || character.TargetObject != null)
+            if(character.LivingState == LivingState.COMBAT)
             {
                 RotateWithAandD();
             }
@@ -274,8 +280,9 @@ namespace PlayerControl
 
         private void RotateWithAandD()
         {
-         //   Debug.Log("RotateWithAandD");
-            if (character.TargetObject == null)
+            Parameters param = new Parameters();
+            //   Debug.Log("RotateWithAandD");
+            if (character.LivingState == LivingState.IDLE)
             {
                 if (turnInput > inputSettings.inputDelay)
                 {
@@ -286,53 +293,61 @@ namespace PlayerControl
                 if (turnInput > inputSettings.inputDelay || turnInput < -inputSettings.inputDelay)
                 {
                     velocity.x = moveSettings.forwardVel * turnInput;
+                    param.AddParameter<bool>("Yaxis", true);
                 }
                 else
                 {
                     velocity.x = 0;
+                    param.AddParameter<bool>("Yaxis", false);
                 }
                 // Forward
                 if (forwardInput > inputSettings.inputDelay || forwardInput < -inputSettings.inputDelay)
                 {
                     velocity.z = moveSettings.forwardVel * forwardInput;
+                    param.AddParameter<bool>("Zaxis", true);
                 }
                 else
                 {
                     // Debug.Log("IDLE!");
                     velocity.z = 0;
+                    param.AddParameter<bool>("Zaxis", false);
                 }
-            }
-            else
+           }
+           else if(character.LivingState == LivingState.COMBAT)
             {
                 if (turnInput > inputSettings.inputDelay)
                 {
-                  //  Debug.Log("Forward");
+                    //  Debug.Log("Forward");
+                    param.AddParameter<bool>("Yaxis", true);
                     velocity.x = moveSettings.forwardVel * turnInput;
                 }
                 else if(turnInput < inputSettings.inputDelay)
                 {
-                   // Debug.Log("Backward");
+                    Debug.Log("Not Moving Sideward");
+                    param.AddParameter<bool>("Yaxis", false);
                     velocity.x = moveSettings.forwardVel * turnInput;
                 }
                 else
                 {
-                    if (character.LivingState == LivingState.IDLE && IsGrounded)
-                    {
-                        // Debug.Log("IDLE!");
-                        velocity.x = 0;
-                    }
+                    param.AddParameter<bool>("Yaxis", false);
+                    velocity.x = 0;
                 }
                 if (Mathf.Abs(forwardInput) > inputSettings.inputDelay)
                 {
+                    param.AddParameter<bool>("Zaxis", true);
                     velocity.z = moveSettings.forwardVel * forwardInput;
                 }
                 else
                 {
-                    if (character.LivingState == LivingState.IDLE && IsGrounded)
-                    {
-                        // Debug.Log("IDLE!");
-                        velocity.z = 0;
-                    }
+                    param.AddParameter<bool>("Zaxis", false);
+                    velocity.z = 0;
+                }
+                if (character.LivingState == LivingState.IDLE && IsGrounded)
+                {
+                    // Debug.Log("IDLE!");
+                    param.AddParameter<bool>("Zaxis", false);
+                    param.AddParameter<bool>("Yaxis", false);
+                    character.UpdateCurrentState(CharacterStates._IDLE, param);
                 }
                 if (character.TargetObject != null)
                 {
@@ -354,6 +369,19 @@ namespace PlayerControl
                         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDir), Time.time * 10f);
                     }
                 }
+            }
+           
+            param.AddParameter<float>("ForwardInput", forwardInput);
+
+            if (turnInput == 0 && forwardInput == 0)
+            {
+                param.AddParameter<bool>("Zaxis", false);
+                param.AddParameter<bool>("Yaxis", false);
+                character.UpdateCurrentState(CharacterStates._IDLE, param);
+            }
+            else
+            {
+                character.UpdateCurrentState(CharacterStates._MOVING, param);
             }
         }
 
@@ -444,6 +472,11 @@ namespace PlayerControl
             }
 
         }
+        private void ResetMovement()
+        {
+            velocity.z = 0;
+            velocity.x = 0;
+        }
         public void Jump()
         {
             Parameters param = new Parameters();
@@ -476,10 +509,19 @@ namespace PlayerControl
         {
             // Selecting BareboneObjects
             SelectObject();
+            Combat();
             GatherResources();
             GetItemOnGround();
         }
 
+        private void Combat()
+        {
+            if (Input.GetButtonDown("SwitchCombat"))
+            {
+                ResetMovement();
+                character.Combat();
+            }
+        }
         private void GatherResources()
         {
             if (Input.GetButtonDown("GatherResource"))
@@ -544,7 +586,7 @@ namespace PlayerControl
                 {
                     bool checkNotif = NotificationManager.Instance.CheckItemNpcNotification();
                     NotificationManager.Instance.itemNearby.PickUpItem(character);
-                    character.PIckupItem(NotificationManager.Instance.itemNearby);
+                    character.PickupItem(NotificationManager.Instance.itemNearby);
                     character.CurrentState = CharacterStateMachine.CharacterStates._INTERACTING;
                 }
             }

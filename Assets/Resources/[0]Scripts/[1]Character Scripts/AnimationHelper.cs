@@ -30,6 +30,11 @@ public class AnimationHelper : MonoBehaviour {
     {
         parent.Evolve();
     }
+
+    public void ToEvolve()
+    {
+        parent.DropAllItems();
+    }
     public void FinishEvolve()
     {
           Debug.Log("Evolve Finish : " + this.gameObject.name);

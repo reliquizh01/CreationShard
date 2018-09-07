@@ -99,6 +99,12 @@ namespace Barebones.Items
             } */
         }
 
+        public void DropItem()
+        {
+            gameObject.transform.parent = null;
+            pickedUp = false;
+        }
+
         public void OnDrawGizmos()
         {
             Vector3 downward = transform.TransformDirection(Vector3.forward * 0.35f);
@@ -178,6 +184,11 @@ namespace Barebones.Items
                 }
             }
         }
+
+        /// <summary>
+        /// Special FX is the Particle system showing (green particle) when item is dropped
+        /// </summary>
+        /// <param name="forceSwitch"></param>
         public void SwitchFX(int forceSwitch = -1)
         {
             if (forceSwitch == -1)

@@ -51,7 +51,6 @@ public class PlayerCharacter : BareboneCharacter {
         {
             Movement(Time.deltaTime);
         }
-        Combat();
         CheckInput();
     }
     private bool IsGrounded
@@ -130,16 +129,19 @@ public class PlayerCharacter : BareboneCharacter {
     public override void Combat()
     {
         base.Combat();
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (LivingState != LivingState.DEAD && LivingState != LivingState.COMBAT)
         {
-            if (LivingState != LivingState.DEAD && LivingState != LivingState.COMBAT)
-            {
-                LivingState = LivingState.COMBAT;
-            }
-            else
-            {
-                LivingState = LivingState.IDLE;
-            }
+            LivingState = LivingState.COMBAT;
+            Parameters p = new Parameters();
+            p.AddParameter<bool>("Combat", true);
+            UpdateAnimator("Combat", p);
+        }
+        else
+        {
+            LivingState = LivingState.IDLE;
+            Parameters p = new Parameters();
+            p.AddParameter<bool>("Combat", false);
+            UpdateAnimator("Combat", p);
         }
     }
     public void GenerateGenericInputKeys()
