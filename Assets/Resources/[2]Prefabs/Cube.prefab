@@ -36,7 +36,7 @@ GameObject:
   - component: {fileID: 4557178978540970}
   - component: {fileID: 137088990568761788}
   m_Layer: 9
-  m_Name: RightHand 1
+  m_Name: RightHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4288330151216680}
   m_Layer: 9
-  m_Name: joint85
+  m_Name: mainJoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -180,7 +180,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1122973162960688
 GameObject:
   m_ObjectHideFlags: 1
@@ -205,7 +205,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4405044916512188}
   m_Layer: 9
-  m_Name: joint87
+  m_Name: subThumb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -220,7 +220,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4290148835890726}
   m_Layer: 9
-  m_Name: joint95
+  m_Name: subSmall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -235,7 +235,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4940212763557408}
   m_Layer: 9
-  m_Name: joint86
+  m_Name: mainThumb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -506,7 +506,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4981593355328408}
   m_Layer: 9
-  m_Name: joint92
+  m_Name: centerMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -536,7 +536,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4868718348681042}
   m_Layer: 9
-  m_Name: joint97
+  m_Name: tipSmall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -701,7 +701,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4316202625732344}
   m_Layer: 9
-  m_Name: joint89
+  m_Name: tipThumb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -738,7 +738,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1501588532439462
 GameObject:
   m_ObjectHideFlags: 1
@@ -869,7 +869,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4030727973284774}
   m_Layer: 9
-  m_Name: joint94
+  m_Name: mainSmall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1049,7 +1049,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4398057825967210}
   m_Layer: 9
-  m_Name: joint91
+  m_Name: subMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1204,7 +1204,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4109683819909822}
   m_Layer: 9
-  m_Name: joint93
+  m_Name: tipMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1407,7 +1407,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1852805899572800
 GameObject:
   m_ObjectHideFlags: 1
@@ -1484,7 +1484,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1901873499336794
 GameObject:
   m_ObjectHideFlags: 1
@@ -1509,7 +1509,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4407085824756592}
   m_Layer: 9
-  m_Name: joint90
+  m_Name: mainMiddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1554,7 +1554,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4737673801589668}
   m_Layer: 9
-  m_Name: joint96
+  m_Name: centerSmall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1599,7 +1599,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4264053567612480}
   m_Layer: 9
-  m_Name: joint88
+  m_Name: centerThumb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1962,7 +1962,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1075851300980790}
   m_LocalRotation: {x: 0.74938303, y: -0.0010657308, z: 0.6621353, w: 0.00094163395}
-  m_LocalPosition: {x: -1.599, y: -0.0000052452087, z: 0.000000014901161}
+  m_LocalPosition: {x: -1.68, y: -0.45, z: -0.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4446625936729190}
@@ -2105,7 +2105,7 @@ Transform:
   - {fileID: 4316202625732344}
   m_Father: {fileID: 4405044916512188}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -6.9483595, z: -0}
+  m_LocalEulerAnglesHint: {x: -0.0000000059271614, y: -6.9483595, z: 0.000000046258496}
 --- !u!4 &4285813177426276
 Transform:
   m_ObjectHideFlags: 1
@@ -2156,12 +2156,12 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1427770193675628}
   m_LocalRotation: {x: -4.8296095e-17, y: 0.9812868, z: 4.8296095e-17, w: -0.19255176}
-  m_LocalPosition: {x: -0.24820787, y: 0, z: 2.1316282e-16}
+  m_LocalPosition: {x: -0.24820787, y: 0, z: 2.131628e-16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4264053567612480}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 4.365116e-15, y: -157.79651, z: 6.496403e-15}
+  m_LocalEulerAnglesHint: {x: -0.000000005929904, y: -157.79651, z: 0.000000046378275}
 --- !u!4 &4333972798400898
 Transform:
   m_ObjectHideFlags: 1
@@ -2282,7 +2282,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1907818642171466}
   m_LocalRotation: {x: 0.022646166, y: 0.4661463, z: 0.04291588, w: 0.88337594}
-  m_LocalPosition: {x: -0.1972909, y: -0.13391572, z: 0.32081166}
+  m_LocalPosition: {x: -0.1972909, y: -0.1339157, z: 0.32081166}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4398057825967210}
@@ -2463,7 +2463,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1023332854659992}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.466903, y: -0.69899476, z: -1.0301101}
+  m_LocalPosition: {x: -2.466903, y: -0.69899476, z: -1.03011}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4636155955905054}
@@ -2996,13 +2996,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1063980977956884}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.1, y: 1.03, z: -0.3200003}
+  m_LocalRotation: {x: 0, y: 0, z: 0.2164396, w: 0.97629607}
+  m_LocalPosition: {x: -0.3, y: 1.7, z: -0.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4063172438946364}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 25}
 --- !u!4 &4940212763557408
 Transform:
   m_ObjectHideFlags: 1
@@ -3214,6 +3214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdItemType: 020000000000000001000000
+  currentItemType: 0
   currentItem: {fileID: 0}
 --- !u!114 &114402492164104472
 MonoBehaviour:
@@ -3271,15 +3272,16 @@ MonoBehaviour:
   multipleIdleState: 1
   currentAnimators:
   - {fileID: 95389404597131766}
-  animatorIndex: 0
+  animatorIndex: 1
   characterName: 
   targetObject: {fileID: 0}
   playerControlled: 1
   isGrounded: 0
   canGrow: 1
   hasHands: 0
+  isEvolving: 0
   itemsWithSlots: []
-  currentEvolution: 0
+  currentEvolution: 1
   evolutions:
   - evolutionName: BabyCube
     evolutionParts:
@@ -3353,7 +3355,7 @@ MonoBehaviour:
     turn_Axis: Horizontal
     Jump_Axis: Jump
   camera: {fileID: 0}
-  rBody: {fileID: 0}
+  rBody: {fileID: 54589030480905446}
   forwardInput: 0
   turnInput: 0
   jumpInput: 0
@@ -3371,6 +3373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdItemType: 020000000000000001000000
+  currentItemType: 0
   currentItem: {fileID: 0}
 --- !u!114 &114519963039744212
 MonoBehaviour:

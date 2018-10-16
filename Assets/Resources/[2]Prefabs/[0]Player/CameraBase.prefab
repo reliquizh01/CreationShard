@@ -123,6 +123,7 @@ MonoBehaviour:
   hostPlayer: {fileID: 0}
   objectToFollow: {fileID: 0}
   objectToFocus: {fileID: 0}
+  playerControl: {fileID: 0}
   inputSensitivity: 150
   rotX: 0
   rotY: 0
@@ -152,8 +153,3 @@ MonoBehaviour:
   smooth: 10
   dollyDirAdjusted: {x: 0, y: 0, z: 0}
   distance: 4
-  layers:
-  - serializedVersion: 2
-    m_Bits: 8192
-  - serializedVersion: 2
-    m_Bits: 4096

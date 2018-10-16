@@ -33,7 +33,7 @@ public class AnimationHelper : MonoBehaviour {
 
     public void ToEvolve()
     {
-        parent.DropAllItems();
+        parent.ToEvolve();
     }
     public void FinishEvolve()
     {

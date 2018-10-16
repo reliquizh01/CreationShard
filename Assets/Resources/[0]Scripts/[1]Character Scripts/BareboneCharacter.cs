@@ -54,6 +54,7 @@ namespace Barebones.Characters
         [SerializeField] protected bool isGrounded;
         [SerializeField] protected bool canGrow;
         [SerializeField] protected bool hasHands;
+        [SerializeField] protected bool isEvolving;
         [SerializeField] protected List<BaseSlot> itemsWithSlots;
         //Evolution GameObjects
         [SerializeField] protected int currentEvolution;
@@ -89,6 +90,14 @@ namespace Barebones.Characters
             set
             {
                 this.hasHands = value;
+            }
+        }
+
+        public bool IsEvolving
+        {
+            get
+            {
+                return isEvolving;
             }
         }
         public string CharacterName
@@ -186,6 +195,8 @@ namespace Barebones.Characters
                 CreateGenericCharacterStats();
             }
 
+            //Set Current Evolution as Active
+            ShowCurrentEvolution();
             //Set CurrentAnimators
             SetCurrentAnimators(evolutions[currentEvolution].EvolutionParts);
             //Obtain current ItemSlots
@@ -415,16 +426,22 @@ namespace Barebones.Characters
             resistance.Initialize();
         }
 
-        public override void DropAllItems()
+        public void DropAllItems()
         {
             foreach(BaseSlot itemSlot in itemsWithSlots)
             {
                 itemSlot.DropCurrentItem();
             }
         }
+
+        public override void ToEvolve()
+        {
+            DropAllItems();
+            ChangeAction(ActionType.IDLE);
+            isEvolving = true;
+        }
         public override void Evolve()
         {
-
             // DISABLE ALL CURRENT EVOLUTION
             for (int i = 0; i < evolutions[currentEvolution].EvolutionParts.Length; i++)
             {
@@ -465,8 +482,14 @@ namespace Barebones.Characters
                 UpdateAnimator("FinishGrowing", param);
             }
 
+            isEvolving = false;
+            // Re-establish the natural Slots of the new formed body after evolution.
+            InitializeGenericSlots(evolutions[currentEvolution].EvolutionParts);
         }
         
+
+        ///   ITEM SLOTS
+
         public void AddStats(BareboneStats stats)
         {
             if(stats == characterStats.Find(x => x == stats))
@@ -504,6 +527,8 @@ namespace Barebones.Characters
         }
         public void InitializeGenericSlots(GameObject[] bodyPartsWithSlots)
         {
+            itemsWithSlots.Clear();
+
             foreach(GameObject bodyPart in bodyPartsWithSlots)
             {
                 AnimationHelper partHelper = bodyPart.GetComponent<AnimationHelper>();
@@ -537,6 +562,30 @@ namespace Barebones.Characters
                 if (slot.holdItemType.Contains(thisItem.equipType))
                 {
                     slot.PlaceItemToSlot(thisItem);
+                }
+            }
+        }
+
+        /// EVOLUTIONS
+
+        public override void ShowCurrentEvolution()
+        {
+
+            for (int i = 0; i <  evolutions.Length; i++)
+            {
+                if(i != currentEvolution)
+                {
+                    foreach(GameObject evoPart in evolutions[i].EvolutionParts)
+                    {
+                        evoPart.SetActive(false);
+                    }
+                }
+                else
+                {
+                    foreach (GameObject evoPart in evolutions[i].EvolutionParts)
+                    {
+                        evoPart.SetActive(true);
+                    }
                 }
             }
         }

@@ -41,8 +41,12 @@ public class BaseSlot : MonoBehaviour {
 
     public void DropCurrentItem()
     {
-        currentItem.transform.parent = null;
-        currentItem.DropItem();
+        if(currentItem != null)
+        {
+            currentItem.transform.parent = null;
+            currentItem.DropItem();
+            currentItem = null;
+        }
     }
     public void NewSetOfHoldItem(EquipType thisType, bool toAdd = true)
     {

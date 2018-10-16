@@ -14,6 +14,7 @@ namespace Barebones.Characters
             DISABLED = 4, // Stunned, Knocked-out, Rooted
             DEAD = 5,
             CAUTIOUS = 6,
+            EVOLVING = 7
         };
 
         public enum ActionType

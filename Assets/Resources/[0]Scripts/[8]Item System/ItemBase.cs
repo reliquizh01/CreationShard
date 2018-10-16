@@ -103,6 +103,7 @@ namespace Barebones.Items
         {
             gameObject.transform.parent = null;
             pickedUp = false;
+            playerInteracting = null;
         }
 
         public void OnDrawGizmos()

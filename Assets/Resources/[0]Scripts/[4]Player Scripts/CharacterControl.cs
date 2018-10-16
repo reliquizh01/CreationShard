@@ -214,7 +214,10 @@ namespace PlayerControl
                     if (IsGrounded)
                     {
                         GetInput();
-                       // Turn();
+                        if(character.LivingState == LivingState.COMBAT)
+                        {
+                            Turn();
+                        }
                     }
                 }
 #if UNITY_EDITOR
@@ -242,7 +245,7 @@ namespace PlayerControl
 
         public void FixedUpdate()
         {
-            if(!character.SkillActivate)
+            if(!character.SkillActivate && !character.IsEvolving)
             {
                 if (character.LivingState == LivingState.IDLE)
                 {
@@ -256,12 +259,14 @@ namespace PlayerControl
 
         public void LateUpdate()
         {
-            if(character.LivingState == LivingState.COMBAT)
+            if(!character.IsEvolving)
             {
-                RotateWithAandD();
+                if(character.LivingState == LivingState.COMBAT)
+                {
+                    RotateWithAandD();
+                }
             }
         }
-/*
         public void Turn()
         {
             // PLAYER FACE ROTATION.
@@ -276,7 +281,6 @@ namespace PlayerControl
                 transform.rotation = Quaternion.Euler(0.0f, camera.transform.eulerAngles.y, 0.0f);
             }
         }
-    */  
 
         private void RotateWithAandD()
         {
@@ -323,7 +327,6 @@ namespace PlayerControl
                 }
                 else if(turnInput < inputSettings.inputDelay)
                 {
-                    Debug.Log("Not Moving Sideward");
                     param.AddParameter<bool>("Yaxis", false);
                     velocity.x = moveSettings.forwardVel * turnInput;
                 }
@@ -345,8 +348,8 @@ namespace PlayerControl
                 if (character.LivingState == LivingState.IDLE && IsGrounded)
                 {
                     // Debug.Log("IDLE!");
-                    param.AddParameter<bool>("Zaxis", false);
-                    param.AddParameter<bool>("Yaxis", false);
+                    param.UpdateParameter<bool>("Zaxis", false);
+                    param.UpdateParameter<bool>("Yaxis", false);
                     character.UpdateCurrentState(CharacterStates._IDLE, param);
                 }
                 if (character.TargetObject != null)
@@ -520,6 +523,7 @@ namespace PlayerControl
             {
                 ResetMovement();
                 character.Combat();
+                cameraBasedFacing = !cameraBasedFacing;
             }
         }
         private void GatherResources()

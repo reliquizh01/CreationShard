@@ -50,7 +50,7 @@ public class AnimationManager : BareboneObject {
 
     }
 
-    public virtual void DropAllItems()
+    public virtual void ToEvolve()
     {
 
     }
@@ -115,6 +115,8 @@ public class AnimationManager : BareboneObject {
             Debug.Log("Animator for Evolution is invalid! Check your List!");
             return;
         }
+        currentAnimators.Clear();
+
         for (int i = 0; i < objectAnimators.Length; i++)
         {
             currentAnimators.Add(objectAnimators[i].GetComponent<Animator>());
@@ -122,6 +124,10 @@ public class AnimationManager : BareboneObject {
 
     }
 
+    public virtual void ShowCurrentEvolution()
+    {
+
+    }
     public virtual void UpdateCurrentState(CharacterStates newState,  Parameters p = null)
     {
         currentState = newState;

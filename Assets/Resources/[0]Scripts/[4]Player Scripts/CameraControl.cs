@@ -130,6 +130,10 @@ namespace CameraBehaviour
                     {
                         BaseMovement();
                     }
+                    else if(playerControl.GetCharacter.LivingState == Barebones.Characters.LivingState.COMBAT)
+                    {
+                        CombatMovement();
+                    }
                 }
             }
         }
@@ -142,13 +146,38 @@ namespace CameraBehaviour
             // Move Towards
             float step = cameraMoveSpeed * Time.deltaTime;
 
-            transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+            if(target != null)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+            }
         }
 
         public void BaseMovement()
         {
             float inputX = Input.GetAxis("RightStickHorizontal");
             float inputZ = Input.GetAxis("RightStickVertical");
+
+            mouseX = Input.GetAxis("Mouse X");
+            mouseY = Input.GetAxis("Mouse Y");
+
+            finalInputX = inputX + mouseX;
+            finalInputZ = inputZ + mouseY;
+
+            rotY += finalInputX * inputSensitivity * Time.deltaTime;
+            rotX += finalInputZ * inputSensitivity * Time.deltaTime;
+
+            //Stop it from going around and around
+            rotX = Mathf.Clamp(rotX, -clampAngle, clampAngle);
+
+            Quaternion localRotation = Quaternion.Euler(rotX, rotY, 0.0f);
+            transform.rotation = localRotation;
+        }
+
+        public void CombatMovement()
+        {
+            float inputX = Input.GetAxis("RightStickHorizontal");
+            float inputZ = Input.GetAxis("RightStickVertical");
+
 
             mouseX = Input.GetAxis("Mouse X");
             mouseY = Input.GetAxis("Mouse Y");
