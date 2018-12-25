@@ -21,7 +21,7 @@ namespace UserInterface
 
         [Header("Notification System")]
         public MGColliderHelper minigameFromThis;
-        public BareboneCharacter npcInteracting;
+        public BareboneNpcBase npcInteracting;
         public ItemBase itemNearby;
 
         #region Const, Static, and Singleton
@@ -96,16 +96,26 @@ namespace UserInterface
             else if (p.HasParameter("Character"))
             {
                 BareboneCharacter tmp = p.GetWithKeyParameterValue<BareboneCharacter>("Character", null);
-                NotifyNearNPC(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
+                NotifyNearOtherPlayer(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
             }
             else if(p.HasParameter("Item"))
             {
                 ItemBase tmp = p.GetWithKeyParameterValue<ItemBase>("Item", null);
                 NotifyNearItem(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
             }
+            else if(p.HasParameter("Npc"))
+            {
+                BareboneNpcBase tmp = p.GetWithKeyParameterValue<BareboneNpcBase>("Npc", null);
+                NotifyNearNPC(tmp, p.GetWithKeyParameterValue<bool>("Entering", false));
+            }
         }
 
-        public void NotifyNearNPC(BareboneCharacter thisCharacter = null, bool isEntering = false)
+
+        public void NotifyNearOtherPlayer(BareboneCharacter thisCharacter  = null, bool isEntering = false)
+        {
+
+        }
+        public void NotifyNearNPC(BareboneNpcBase thisCharacter = null, bool isEntering = false)
         {
             if(thisCharacter == null)
             {

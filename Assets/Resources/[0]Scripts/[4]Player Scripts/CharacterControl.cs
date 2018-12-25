@@ -82,6 +82,7 @@ namespace PlayerControl
         [SerializeField] private Rigidbody rBody;
         [SerializeField] private float forwardInput, turnInput, jumpInput;
         [SerializeField] private bool justJumped, tooHigh;
+        [SerializeField] public Transform[] cameraPositionRef;
 
         public BareboneCharacter GetCharacter
         {
@@ -220,7 +221,7 @@ namespace PlayerControl
                         }
                     }
                 }
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 if (Input.GetKeyDown(KeyCode.Backspace))
                 {
                     debugMode = !debugMode;
@@ -239,7 +240,16 @@ namespace PlayerControl
                         character.UpdateAnimator("Grow", param);
                     }
                 }
-#endif
+                #endif
+            }
+            else
+            {
+                // TEMPORARY FIX - NEEDS IMPROVEMENT LATER ON
+                if(Input.GetKeyDown(KeyCode.Escape))
+                {
+                    inMinigame = false;
+                    EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_CLEAR_FOCUS);
+                }
             }
         }
 
@@ -352,6 +362,8 @@ namespace PlayerControl
                     param.UpdateParameter<bool>("Yaxis", false);
                     character.UpdateCurrentState(CharacterStates._IDLE, param);
                 }
+                // This script is to check if target is null  (To be reviewed)
+                /*
                 if (character.TargetObject != null)
                 {
                     // Mathf.Abs is not Appropriate because distance sometimes return wrong results
@@ -371,7 +383,7 @@ namespace PlayerControl
 
                         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDir), Time.time * 10f);
                     }
-                }
+                }*/
             }
            
             param.AddParameter<float>("ForwardInput", forwardInput);
@@ -515,6 +527,7 @@ namespace PlayerControl
             Combat();
             GatherResources();
             GetItemOnGround();
+            StartNPCTalks();
         }
 
         private void Combat()
@@ -534,7 +547,7 @@ namespace PlayerControl
                 {
                     bool checkNotif = NotificationManager.Instance.CheckMinigameNotification();
                     inMinigame = true;
-                    character.TargetObject = NotificationManager.Instance.minigameFromThis.gameObject;
+                    character.TargetObject = NotificationManager.Instance.minigameFromThis.GetParent;
                     EventBroadcaster.Instance.PostEvent(EventNames.CAMERA_VIEWMODE_MINIGAME);
                 }
             }
@@ -582,14 +595,24 @@ namespace PlayerControl
             }
         }
         
+
+        private void StartNPCTalks()
+        {
+             if (NotificationManager.Instance.npcInteracting != null)
+            {
+                NotificationManager.Instance.npcInteracting.StartPlayerConversation(this.character);
+
+                character.CurrentState = CharacterStateMachine.CharacterStates._INTERACTING;
+            }
+        }
         private void GetItemOnGround()
         {
             if(Input.GetButtonDown("ItemNpcInteract"))
             {
+                bool checkNotif = NotificationManager.Instance.CheckItemNpcNotification();
                 if (NotificationManager.Instance.itemNearby != null)
                 {
-                    bool checkNotif = NotificationManager.Instance.CheckItemNpcNotification();
-                    NotificationManager.Instance.itemNearby.PickUpItem(character);
+                    NotificationManager.Instance.itemNearby.PickUpItem(this.character);
                     character.PickupItem(NotificationManager.Instance.itemNearby);
                     character.CurrentState = CharacterStateMachine.CharacterStates._INTERACTING;
                 }

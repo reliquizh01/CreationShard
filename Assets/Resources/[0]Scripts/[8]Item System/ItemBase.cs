@@ -41,6 +41,7 @@ namespace Barebones.Items
         [Header("Particle Effects")]
         [SerializeField] public ParticleSystem fx;
 
+        [Header("Player Interaction")]
         public BareboneCharacter playerInteracting;
         [SerializeField] private List<BareboneCharacter> playersWithinRange = new List<BareboneCharacter>();
 

@@ -57,6 +57,7 @@ namespace Barebones.Characters
         [SerializeField] protected bool isEvolving;
         [SerializeField] protected List<BaseSlot> itemsWithSlots;
         //Evolution GameObjects
+        [SerializeField] private bool hasEvolution = true;
         [SerializeField] protected int currentEvolution;
         [SerializeField] private CharacterEvolution[] evolutions;
 
@@ -196,11 +197,14 @@ namespace Barebones.Characters
             }
 
             //Set Current Evolution as Active
-            ShowCurrentEvolution();
-            //Set CurrentAnimators
-            SetCurrentAnimators(evolutions[currentEvolution].EvolutionParts);
-            //Obtain current ItemSlots
-            InitializeGenericSlots(evolutions[currentEvolution].EvolutionParts);
+            if (hasEvolution)
+            {
+                ShowCurrentEvolution();
+                //Set CurrentAnimators
+                SetCurrentAnimators(evolutions[currentEvolution].EvolutionParts);
+                //Obtain current ItemSlots
+                InitializeGenericSlots(evolutions[currentEvolution].EvolutionParts);
+            }
         }
 
         public override void Update()
@@ -486,10 +490,13 @@ namespace Barebones.Characters
             // Re-establish the natural Slots of the new formed body after evolution.
             InitializeGenericSlots(evolutions[currentEvolution].EvolutionParts);
         }
-        
 
+        // NPC INTERACTION
+        #region NPC_INTERACTION
+
+        #endregion
         ///   ITEM SLOTS
-
+        #region ITEM_SLOTS
         public void AddStats(BareboneStats stats)
         {
             if(stats == characterStats.Find(x => x == stats))
@@ -565,9 +572,10 @@ namespace Barebones.Characters
                 }
             }
         }
+        #endregion
 
         /// EVOLUTIONS
-
+        #region EVOLUTIONS
         public override void ShowCurrentEvolution()
         {
 
@@ -589,5 +597,6 @@ namespace Barebones.Characters
                 }
             }
         }
+        #endregion
     }
 }

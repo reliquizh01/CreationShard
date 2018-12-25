@@ -83,29 +83,6 @@ namespace CameraBehaviour
             }
         }
 
-        private void SwitchToMinigameViewMode(Parameters p = null)
-        {
-            Quaternion offset = Quaternion.Euler(0, cameraPositions[0].rotation.y - hostPlayer.transform.rotation.eulerAngles.y, 0);
-            StartCoroutine(ToMinigameView(offset, 3.0f));
-        }
-        private void CursorVisibilitySwitch(Parameters p = null)
-        {
-            if(p != null)
-            {
-                EnableCursor = (p.HasParameter("Switch")) ? p.GetWithKeyParameterValue<bool>("Switch", false) : !EnableCursor;
-            }
-            else
-            {
-                EnableCursor = !EnableCursor;
-            }
-            if (EnableCursor)
-                Cursor.lockState = CursorLockMode.None;
-            else
-                Cursor.lockState = CursorLockMode.Locked;
-
-            Cursor.visible = EnableCursor;
-        }
-
         public void FixedUpdate()
         {
             if (!inMinigame)
@@ -114,7 +91,7 @@ namespace CameraBehaviour
                 {
                     if (objectToFocus != null)
                     {
-                        FocusOnTarget();
+                       // FocusOnTarget();
                     }
                 }
             }
@@ -195,6 +172,7 @@ namespace CameraBehaviour
             transform.rotation = localRotation;
         }
 
+        #region FOCUS_VIEW_MODE
         public void FocusOnTarget()
         {
             if(objectToFocus == null)
@@ -236,9 +214,40 @@ namespace CameraBehaviour
             {
                 return;
             }
+            inMinigame = false;
             objectToFocus = null;
         }
-        
+        #endregion
+
+        #region MINIGAME_VIEW_MODE
+        private void SwitchToMinigameViewMode(Parameters p = null)
+        {
+            // Vector3 nextPos = playerControl.cameraPositionRef[0].position;
+            // Quaternion offset = Quaternion.Euler(0, nextPos.y, 0);
+            // StartCoroutine(ToMinigameView(offset, 3.0f));
+            GameObject playerTarget = playerControl.GetTarget;
+            inMinigame = true;
+            Vector3 center = ((playerTarget.transform.position - playerControl.gameObject.transform.position) / 2.0f) + playerControl.gameObject.transform.position;
+            camera.transform.LookAt(center);
+        }
+        private void CursorVisibilitySwitch(Parameters p = null)
+        {
+            if (p != null)
+            {
+                EnableCursor = (p.HasParameter("Switch")) ? p.GetWithKeyParameterValue<bool>("Switch", false) : !EnableCursor;
+            }
+            else
+            {
+                EnableCursor = !EnableCursor;
+            }
+            if (EnableCursor)
+                Cursor.lockState = CursorLockMode.None;
+            else
+                Cursor.lockState = CursorLockMode.Locked;
+
+            Cursor.visible = EnableCursor;
+        }
+
         public IEnumerator ToMinigameView(Quaternion target, float overTime)
         {
             float startTime = Time.time;
@@ -251,5 +260,6 @@ namespace CameraBehaviour
             }
             transform.rotation = target;
         }
+        #endregion
     }
 }

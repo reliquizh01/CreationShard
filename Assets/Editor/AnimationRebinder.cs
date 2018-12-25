@@ -1,5 +1,9 @@
 ﻿using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,8 +23,10 @@ public class AnimationPathRenamer : EditorWindow
     [MenuItem("Window/Animation Clip Target Renamer")]
     public static void OpenWindow()
     {
+#if UNITY_EDITOR
         AnimationPathRenamer renamer = GetWindow<AnimationPathRenamer>("Animation Clip Target Renamer");
         renamer.Clear();
+#endif
     }
 
     private void Initialize()

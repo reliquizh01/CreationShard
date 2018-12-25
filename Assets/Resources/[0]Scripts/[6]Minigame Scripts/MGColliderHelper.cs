@@ -12,7 +12,7 @@ namespace Barebones.Minigame
 
         [SerializeField] private BareboneCharacter playerInteracting;
         [SerializeField] private List<BareboneCharacter> playersWithinRange = new List<BareboneCharacter>();
-
+        [SerializeField] private GameObject parent;
         [Header("Switch")]
         [SerializeField] public bool effectsOn;
 
@@ -21,8 +21,19 @@ namespace Barebones.Minigame
         // Parameter Default
         Parameters p = new Parameters();
 
+        public GameObject GetParent
+        {
+            get
+            {
+                if (parent != null)
+                    return this.parent;
+                else
+                    return this.gameObject;
+            }
+        }
         public void Start()
         {
+            parent = this.transform.parent.gameObject;
             p.AddParameter<MGColliderHelper>("Checker", this);
             p.AddParameter<bool>("Entering", false);
             SwitchFX(0);
@@ -69,7 +80,7 @@ namespace Barebones.Minigame
                     SwitchFX(1);
                     Parameters p = new Parameters();
                     p.AddParameter<MGColliderHelper>("Checker", this);
-                    p.AddParameter<GameObject>("MGobject", transform.parent.gameObject);
+                    p.AddParameter<GameObject>("MGobject", parent);
                     p.UpdateParameter<bool>("Entering", true);
                    // Debug.Log("Enter");
                     EventBroadcaster.Instance.PostEvent(EventNames.NOTIFY_PLAYER_INTERACTION, p);
